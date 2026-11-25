@@ -16,7 +16,7 @@ export default function NewTeam() {
 
   const [title, setTitle] = useState("");
   const [icon, setIcon] = useState(4);
-  const [myRoles, setMyRoles] = useState<string[]>(me?.skills.slice(0, 1) ?? []);
+  const [myRoles, setMyRoles] = useState<string[]>(me?.skills ?? []);
   const [needed, setNeeded] = useState<string[]>([]);
   const [minHours, setMinHours] = useState(8);
   const [goal, setGoal] = useState<Goal>(me?.commitment_goal ?? "finalist");
@@ -55,7 +55,7 @@ export default function NewTeam() {
         <BackButton href={`/competitions/${c.id}`} />
         <div className="flex flex-col">
           <span className="text-xs text-muted">{c.name}</span>
-          <h1 className="m-0 text-[22px] font-bold">Post your team</h1>
+          <h1 className="m-0 text-[22px] font-bold">Create a team</h1>
         </div>
       </div>
 
@@ -85,13 +85,13 @@ export default function NewTeam() {
 
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-semibold">
-          You cover <span className="font-medium text-muted">(from your skills)</span>
+          You cover <span className="font-medium text-muted">(from your profile)</span>
         </span>
         <div className="flex flex-wrap gap-2">
           {me.skills.map((s) => (
-            <TogglePill key={s} on={myRoles.includes(s)} onClick={() => toggle(myRoles, setMyRoles, s)}>
+            <span key={s} className="h-[38px] px-3.5 rounded-xl text-[13px] flex items-center bg-ink text-lime font-bold">
               {s}
-            </TogglePill>
+            </span>
           ))}
         </div>
       </div>
@@ -139,7 +139,7 @@ export default function NewTeam() {
         </p>
       )}
 
-      <PrimaryArrowButton onClick={submit}>Post and find people</PrimaryArrowButton>
+      <PrimaryArrowButton onClick={submit}>Create team and find people</PrimaryArrowButton>
     </main>
   );
 }

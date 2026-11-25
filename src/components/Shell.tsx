@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useStore } from "@/lib/store";
 
-const PUBLIC = ["/", "/onboarding", "/login"];
+const PUBLIC = ["/", "/onboarding", "/login", "/forgot-password"];
 
 /** Phone-width column, onboarding guard and toast. */
 export function Shell({ children }: { children: React.ReactNode }) {
@@ -13,13 +13,19 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const isPublic = PUBLIC.includes(path);
 
+  const isAdmin = me?.role === "admin";
+
   useEffect(() => {
-    if (ready && !me && !isPublic) router.replace("/");
-  }, [ready, me, isPublic, router]);
+    if (!ready) return;
+    if (!me && !isPublic) router.replace("/");
+    // Admins only manage competitions. Students can't open the admin page.
+    if (isAdmin && !path.startsWith("/admin")) router.replace("/admin");
+    if (me && !isAdmin && path.startsWith("/admin")) router.replace("/competitions");
+  }, [ready, me, isPublic, isAdmin, path, router]);
 
   return (
     <div className="mx-auto max-w-[430px] min-h-dvh bg-paper relative overflow-x-hidden md:shadow-[0_0_0_1px_rgba(30,30,30,0.06)]">
-      {!ready || (!me && !isPublic) ? (
+      {!ready || (!me && !isPublic) || (isAdmin && !path.startsWith("/admin")) || (me && !isAdmin && path.startsWith("/admin")) ? (
         <div className="min-h-dvh flex items-center justify-center" aria-busy="true">
           <span className="w-10 h-10 rounded-full border-4 border-sand border-t-ink animate-spin" />
         </div>

@@ -13,6 +13,9 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [avatar, setAvatar] = useState(2);
   const [name, setName] = useState("");
   const [major, setMajor] = useState("");
@@ -27,12 +30,17 @@ export default function Onboarding() {
 
   function next() {
     setError("");
-    if (step === 1 && name.trim().length < 2) return setError("Tell us your name.");
-    if (step === 2) {
-      if (!major.trim()) return setError("Add your major.");
-      if (!skills.length) return setError("Pick at least one skill.");
+    if (step === 1) {
+      if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setError("Enter a valid email.");
+      if (password.length < 6) return setError("Password needs at least 6 characters.");
+      if (password !== confirm) return setError("Passwords don't match.");
     }
+    if (step === 2 && name.trim().length < 2) return setError("Tell us your name.");
     if (step === 3) {
+      if (!major.trim()) return setError("Add your major.");
+      if (!skills.length) return setError("Pick at least one role.");
+    }
+    if (step === 4) {
       if (!contact.trim()) return setError("Add a WhatsApp number or Instagram handle. Only teammates see it.");
       if (!consent) return setError("Tick the consent box so teams can find you.");
       createProfile({
@@ -47,6 +55,7 @@ export default function Onboarding() {
         commitment_goal: goal,
         contact: contact.trim(),
         data_consent: consent,
+        email: email.trim(),
       });
       showToast("Profile created");
       router.push("/competitions");
@@ -69,10 +78,28 @@ export default function Onboarding() {
         >
           <IconBack />
         </button>
-        <span className="text-[13px] text-muted">Step {step} of 3</span>
+        <span className="text-[13px] text-muted">Step {step} of 4</span>
       </div>
 
       {step === 1 && (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <h1 className="m-0 text-[28px] font-extrabold">Create your account</h1>
+            <p className="m-0 text-[15px] leading-normal text-muted">Use your campus email. Preview build: email confirmation is skipped.</p>
+          </div>
+          <Field label="Email">
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@student.uinsgd.ac.id" autoComplete="email" className={inputCls} />
+          </Field>
+          <Field label="Password" hint="At least 6 characters.">
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" className={inputCls} />
+          </Field>
+          <Field label="Confirm password">
+            <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" className={inputCls} />
+          </Field>
+        </>
+      )}
+
+      {step === 2 && (
         <>
           <div className="flex flex-col gap-1.5">
             <h1 className="m-0 text-[28px] font-extrabold">Pick your avatar</h1>
@@ -110,15 +137,15 @@ export default function Onboarding() {
         </>
       )}
 
-      {step === 2 && (
+      {step === 3 && (
         <>
           <div className="flex flex-col gap-1.5">
-            <h1 className="m-0 text-[28px] font-extrabold">What can you do?</h1>
-            <p className="m-0 text-[15px] leading-normal text-muted">Teams search by these skills. Pick all that apply, one person can cover several roles.</p>
+            <h1 className="m-0 text-[28px] font-extrabold">Which roles can you cover?</h1>
+            <p className="m-0 text-[15px] leading-normal text-muted">Teams search by these roles, whatever your major. Pick all that apply.</p>
           </div>
           <div className="flex flex-col gap-2">
             <span className="text-[13px] font-semibold">
-              Skills <span className="font-medium text-muted">(pick one or more)</span>
+              Roles <span className="font-medium text-muted">(pick one or more)</span>
             </span>
             <div className="flex flex-wrap gap-2">
               {SKILLS.map((s) => (
@@ -149,7 +176,7 @@ export default function Onboarding() {
         </>
       )}
 
-      {step === 3 && (
+      {step === 4 && (
         <>
           <div className="flex flex-col gap-1.5">
             <h1 className="m-0 text-[28px] font-extrabold">How much can you give?</h1>
@@ -197,7 +224,7 @@ export default function Onboarding() {
       {error && <p role="alert" className="m-0 text-sm font-semibold text-ink bg-lime rounded-xl px-3 py-2">{error}</p>}
 
       <div className="mt-auto pt-2">
-        <PrimaryArrowButton onClick={next}>{step === 3 ? "Finish" : "Continue"}</PrimaryArrowButton>
+        <PrimaryArrowButton onClick={next}>{step === 4 ? "Finish" : "Continue"}</PrimaryArrowButton>
       </div>
     </main>
   );

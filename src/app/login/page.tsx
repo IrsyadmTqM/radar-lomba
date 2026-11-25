@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
@@ -7,7 +8,7 @@ import { BackButton, Field, PrimaryArrowButton, inputCls } from "@/components/ui
 import { IconInfo } from "@/components/Icons";
 
 export default function Login() {
-  const { createProfile, showToast } = useStore();
+  const { createProfile, signInAdmin, showToast } = useStore();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,16 +17,17 @@ export default function Login() {
     e.preventDefault();
     // Frontend-only build: sign-in opens a ready-made demo account.
     createProfile({
-      full_name: "Dimas A.",
+      full_name: "Asep A.",
       avatar_id: 9,
       major: "Informatics",
       faculty: "Science and Technology",
       entry_year: 2023,
-      skills: ["Frontend", "UI/UX"],
+      skills: ["Software dev", "Design"],
+      email: email.trim(),
       bio: "React, Tailwind and Figma.",
       commitment_hours_per_week: 10,
       commitment_goal: "finalist",
-      contact: "@dimas.a",
+      contact: "@asep.a",
       data_consent: true,
     });
     showToast("Signed in to the demo account");
@@ -50,8 +52,20 @@ export default function Login() {
           <IconInfo size={18} className="shrink-0 mt-px" />
           <span className="text-[13px] leading-[1.45] text-muted">Preview build: any email and password open a demo account. Real sign-in comes with the Supabase backend.</span>
         </div>
-        <div className="mt-auto">
+        <div className="mt-auto flex flex-col gap-3">
+          <Link href="/forgot-password" className="text-center text-sm underline">Forgot password?</Link>
           <PrimaryArrowButton type="submit">Sign in</PrimaryArrowButton>
+          <button
+            type="button"
+            onClick={() => {
+              signInAdmin();
+              showToast("Signed in as admin");
+              router.push("/admin");
+            }}
+            className="text-center text-sm underline"
+          >
+            Demo: open admin view
+          </button>
         </div>
       </form>
     </main>

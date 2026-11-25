@@ -1,28 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 300" width="340" height="300" fill="none" stroke="#1E1E1E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M74 92 C120 60 160 150 170 150" stroke-dasharray="2 12"/>
-  <path d="M266 92 C220 60 180 150 170 150" stroke-dasharray="2 12"/>
-  <circle cx="170" cy="150" r="118" stroke="#1E1E1E" stroke-opacity="0.18" stroke-width="3"/>
-  <circle cx="170" cy="150" r="78" stroke="#1E1E1E" stroke-opacity="0.18" stroke-width="3"/>
-  <g>
-    <path d="M40 150 v-12 a34 34 0 0 1 68 0 v12 z" fill="#1E1E1E"/>
-    <circle cx="74" cy="76" r="22" fill="#FFFFFF"/>
-    <path d="M64 78 q10 8 20 0" stroke-width="4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 300" width="340" height="300" fill="none" stroke="#1E1E1E" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" font-family="Urbanist, sans-serif">
+  <circle cx="170" cy="150" r="128" stroke-opacity=".16" stroke-width="2.5"/>
+  <circle cx="170" cy="150" r="92" stroke-opacity=".16" stroke-width="2.5"/>
+  <circle cx="170" cy="150" r="56" stroke-opacity=".16" stroke-width="2.5"/>
+  <path d="M170 150 L170 22 A128 128 0 0 1 260 59 Z" fill="#1E1E1E" fill-opacity=".07" stroke="none"/>
+  <path d="M170 150 L170 22" stroke-opacity=".3" stroke-width="2.5"/>
+  <path d="M62 112 L138 138 M278 112 L202 138 M170 202 L170 192" stroke-dasharray="1 9" stroke-width="4.5"/>
+  <!-- centre: competition card -->
+  <g transform="rotate(-6 170 150)">
+    <rect x="136" y="110" width="68" height="80" rx="14" fill="#FFFFFF"/>
+    <path d="M152 128h36v10a18 18 0 0 1-36 0z" fill="#CEEC68"/>
+    <path d="M152 131h-6a8 8 0 0 0 8 10M188 131h6a8 8 0 0 1-8 10M170 156v10M160 168h20"/>
+    <path d="M148 180h44" stroke-opacity=".35" stroke-width="3"/>
   </g>
+  <!-- left person: design -->
   <g>
-    <path d="M232 150 v-12 a34 34 0 0 1 68 0 v12 z" fill="#FFFFFF"/>
-    <circle cx="266" cy="76" r="22" fill="#FFFFFF"/>
-    <path d="M256 78 q10 8 20 0" stroke-width="4"/>
+    <path d="M24 176 v-8 a36 36 0 0 1 72 0 v8 z" fill="#CEEC68"/>
+    <circle cx="60" cy="112" r="24" fill="#FFFFFF"/>
+    <path d="M36 108 a24 24 0 0 1 48 -2 q-12 -8 -24 -2 q-12 -6 -24 4z" fill="#1E1E1E"/>
+    <circle cx="52" cy="114" r="2.4" fill="#1E1E1E" stroke="none"/><circle cx="68" cy="114" r="2.4" fill="#1E1E1E" stroke="none"/>
+    <path d="M53 122 q7 6 14 0" stroke-width="3"/>
   </g>
+  <!-- right person: coding -->
   <g>
-    <path d="M118 262 v-30 a52 52 0 0 1 104 0 v30 z" fill="#FFFFFF"/>
-    <circle cx="170" cy="228" r="11" fill="#CEEC68"/>
-    <circle cx="170" cy="150" r="32" fill="#FFFFFF"/>
-    <path d="M156 154 q14 12 28 0" stroke-width="4.5"/>
-    <circle cx="159" cy="143" r="2.5" fill="#1E1E1E" stroke="none"/>
-    <circle cx="181" cy="143" r="2.5" fill="#1E1E1E" stroke="none"/>
+    <path d="M244 176 v-8 a36 36 0 0 1 72 0 v8 z" fill="#1E1E1E"/>
+    <circle cx="280" cy="112" r="24" fill="#FFFFFF"/>
+    <path d="M256 112 a24 24 0 0 1 48 0 q-6 -14 -24 -14 q-18 0 -24 14z" fill="#8C8D85"/>
+    <circle cx="272" cy="116" r="2.4" fill="#1E1E1E" stroke="none"/><circle cx="288" cy="116" r="2.4" fill="#1E1E1E" stroke="none"/>
+    <path d="M273 124 q7 6 14 0" stroke-width="3"/>
   </g>
-  <path d="M300 200 v18 M291 209 h18" stroke-width="4"/>
-  <path d="M36 216 v14 M29 223 h14" stroke-width="4"/>
-  <circle cx="300" cy="30" r="5" fill="#1E1E1E" stroke="none"/>
-  <circle cx="30" cy="40" r="4" fill="#1E1E1E" stroke="none"/>
+  <!-- bottom person: writing -->
+  <g>
+    <path d="M136 264 v-4 a34 34 0 0 1 68 0 v4 z" fill="#FFFFFF"/>
+    <circle cx="170" cy="222" r="20" fill="#FFFFFF"/>
+    <path d="M150 220 a20 20 0 0 1 40 0 q-6 6 -10 -4 q-12 6 -30 4z" fill="#CEEC68"/>
+    <circle cx="163" cy="226" r="2.2" fill="#1E1E1E" stroke="none"/><circle cx="177" cy="226" r="2.2" fill="#1E1E1E" stroke="none"/>
+    <path d="M164 232 q6 5 12 0" stroke-width="3"/>
+  </g>
+  <path d="M300 40 v14 M293 47 h14" stroke-width="3.5"/>
+  <path d="M30 60 v12 M24 66 h12" stroke-width="3.5"/>
+  <circle cx="312" cy="250" r="4" fill="#1E1E1E" stroke="none"/>
+  <circle cx="28" cy="250" r="4" fill="#CEEC68"/>
 </svg>

@@ -121,3 +121,45 @@ export function SectionTitle({ title, aside }: { title: string; aside?: React.Re
     </div>
   );
 }
+
+/** Centered confirm popup (replaces tap-twice confirms). */
+export function ConfirmModal({ title, body, confirmLabel, onConfirm, onCancel, danger = false }: { title: string; body: string; confirmLabel: string; onConfirm: () => void; onCancel: () => void; danger?: boolean }) {
+  return (
+    <div className="fixed inset-0 z-50 bg-ink/50 flex items-center justify-center px-6" onClick={onCancel}>
+      <div role="alertdialog" aria-label={title} className="animate-rise w-full max-w-[340px] bg-paper rounded-[28px] p-5 flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
+        <h2 className="m-0 text-xl font-bold">{title}</h2>
+        <p className="m-0 text-sm leading-normal text-muted">{body}</p>
+        <div className="flex gap-2.5 pt-1">
+          <button type="button" onClick={onCancel} className="flex-1 h-12 rounded-2xl bg-card text-ink font-semibold text-sm">
+            Cancel
+          </button>
+          <button type="button" onClick={onConfirm} className={`flex-1 h-12 rounded-2xl font-semibold text-sm ${danger ? "bg-ink text-white" : "bg-lime text-ink"}`}>
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Small tag list for competition rewards. */
+export function RewardTags({ rewards, max }: { rewards: string[]; max?: number }) {
+  const list = max ? rewards.slice(0, max) : rewards;
+  return (
+    <>
+      {list.map((r) => (
+        <span key={r} className="bg-card rounded-[10px] px-2.5 py-1.5 text-xs">
+          {r}
+        </span>
+      ))}
+    </>
+  );
+}
+
+export const initialsOf = (s: string) =>
+  s
+    .split(/\s+/)
+    .filter((w) => /^[A-Za-z]/.test(w))
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");

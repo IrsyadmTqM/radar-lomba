@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
@@ -124,6 +125,9 @@ export default function Candidates() {
                 <CheckRow key={x.text} ok={x.ok} text={x.text} />
               ))}
             </div>
+            <Link href={`/users/${m.profile.id}?team=${r.id}`} className="text-center text-sm underline text-ink">
+              View full profile
+            </Link>
             {canInvite &&
               (invited ? (
                 <div className="h-[46px] rounded-[14px] bg-card/70 flex items-center justify-center text-sm font-semibold">Invite sent, waiting for reply</div>

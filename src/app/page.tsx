@@ -28,8 +28,8 @@ export default function Welcome() {
           <p className="m-0 text-[15px] leading-normal text-muted">Find teammates for a specific competition, matched on the skills you need and how much time they can give.</p>
         </div>
         <div className="flex flex-col gap-3">
-          <Link href={me ? "/competitions" : "/onboarding"} className="h-14 rounded-[18px] bg-ink text-white no-underline flex items-center justify-between pl-[22px] pr-2 font-semibold text-base">
-            {me ? `Continue as ${me.full_name.split(" ")[0]}` : "Create my profile"}
+          <Link href={me ? (me.role === "admin" ? "/admin" : "/competitions") : "/onboarding"} className="h-14 rounded-[18px] bg-ink text-white no-underline flex items-center justify-between pl-[22px] pr-2 font-semibold text-base">
+            {me ? (me.role === "admin" ? "Open admin" : `Continue as ${me.full_name.split(" ")[0]}`) : "Create my profile"}
             <span className="w-[42px] h-[42px] rounded-[14px] bg-lime flex items-center justify-center">
               <IconArrow color="#1E1E1E" />
             </span>

@@ -27,7 +27,7 @@ export function BottomNav() {
               <Link key={href} href={href} aria-label={label} aria-current={active ? "page" : undefined} className={`relative w-12 h-12 rounded-2xl flex items-center justify-center ${active ? "bg-lime" : ""}`}>
                 <Icon size={22} color={active ? "#1E1E1E" : "#E2E0D8"} />
                 {href === "/inbox" && pending > 0 && (
-                  <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-lime text-ink text-[11px] font-bold flex items-center justify-center border-2 border-ink">{pending}</span>
+                  <span aria-label={`${pending} pending`} className="absolute top-[9px] right-[11px] w-2 h-2 rounded-full bg-lime border-2 border-ink box-content" />
                 )}
               </Link>
             );
