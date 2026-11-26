@@ -18,7 +18,7 @@ export default function Welcome() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo/radar-lomba-icon-on-lime.png" alt="Radar Lomba logo" className="w-[55px] h-[52px]" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/illustrations/welcome.svg" alt="Three students connected into one team" className="w-[320px] max-w-[82%] h-auto" />
+          <img src="/illustrations/welcome-team.png" alt="Four students fitting trophy puzzle pieces together into one team" className="w-[320px] max-w-[82%] h-auto mt-3" />
         </div>
       </div>
 
