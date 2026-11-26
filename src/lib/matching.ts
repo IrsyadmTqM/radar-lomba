@@ -93,6 +93,8 @@ export function candidatesFor(db: DB, request: TeamRequest): Match[] {
   return db.profiles
     .filter((p) => p.data_consent)
     .filter((p) => !memberIds.has(p.id))
+    .filter((p) => !request.kicked?.includes(p.id))
+    .filter((p) => p.role !== "admin")
     .filter((p) => !teamInCompetition(db, p.id, request.competition_id)) // one team per competition
     .filter((p) => freeHours(db, p.id) >= request.min_hours_per_week) // enough time left
     .map((p) => explain(db, request, p))
@@ -103,6 +105,7 @@ export function candidatesFor(db: DB, request: TeamRequest): Match[] {
 /** Why a person cannot join this team right now, or null if they can. */
 export function joinBlocker(db: DB, request: TeamRequest, profileId: string): string | null {
   if (request.status !== "open") return "This team is not taking new members.";
+  if (request.kicked?.includes(profileId)) return "The team owner removed you from this team.";
   const existing = teamInCompetition(db, profileId, request.competition_id);
   if (existing) return `You're already in ${existing.title} for this competition. One team per competition.`;
   const free = freeHours(db, profileId);

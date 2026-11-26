@@ -5,15 +5,16 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { BottomNav } from "@/components/BottomNav";
-import { Avatar, BackButton, DemoTag, SectionTitle, TeamIcon, inputCls } from "@/components/ui";
+import { Avatar, BackButton, ConfirmModal, DemoTag, SectionTitle, TeamIcon, inputCls } from "@/components/ui";
 import { IconChat, IconExternal, IconPlus, IconSearch } from "@/components/Icons";
 
 export default function TeamPage() {
   const { requestId } = useParams<{ requestId: string }>();
   const router = useRouter();
-  const { db, me, now, setStatus, setGroupLink, leaveTeam, showToast } = useStore();
+  const { db, me, now, setStatus, setGroupLink, leaveTeam, kickMember, showToast } = useStore();
   const [linkDraft, setLinkDraft] = useState("");
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const [kickId, setKickId] = useState<string | null>(null);
 
   const r = db.requests.find((x) => x.id === requestId);
   const c = r && db.competitions.find((x) => x.id === r.competition_id);
@@ -94,6 +95,12 @@ export default function TeamPage() {
         )}
       </div>
 
+      {isOwner && (
+        <Link href={`/teams/${r.id}/edit`} className="self-start no-underline text-ink bg-card rounded-xl h-10 px-4 flex items-center font-semibold text-sm">
+          Edit team
+        </Link>
+      )}
+
       <SectionTitle title="Members" aside={isMember ? "Contacts visible to members only" : "Join to see contacts"} />
 
       <div className="bg-card rounded-[22px] px-3.5 py-1.5 flex flex-col">
@@ -112,6 +119,16 @@ export default function TeamPage() {
                   {m.roles.join(" + ")} · {r.min_hours_per_week} h/week{isMember && p.contact ? ` · ${p.contact}` : ""}
                 </span>
               </div>
+              {isOwner && p.id !== me.id && (
+                <button
+                  type="button"
+                  aria-label={`Remove ${p.full_name}`}
+                  onClick={() => setKickId(p.id)}
+                  className="shrink-0 h-9 px-3 rounded-xl text-xs font-semibold border-[1.5px] border-sand text-ink"
+                >
+                  Remove
+                </button>
+              )}
             </div>
           );
         })}
@@ -160,23 +177,9 @@ export default function TeamPage() {
                 Reopen team
               </button>
             ))}
-          {confirmLeave ? (
-            <button
-              type="button"
-              onClick={() => {
-                leaveTeam(r.id);
-                showToast(`You left ${r.title}`);
-                router.push("/teams");
-              }}
-              className={`${isOwner ? "" : "flex-1"} h-12 px-4 rounded-2xl bg-lime-dark text-ink font-semibold text-sm`}
-            >
-              Tap again to leave
-            </button>
-          ) : (
-            <button type="button" onClick={() => setConfirmLeave(true)} className={`${isOwner ? "" : "flex-1"} h-12 px-4 rounded-2xl border-[1.5px] border-sand bg-card text-ink font-semibold text-sm`}>
-              Leave team
-            </button>
-          )}
+          <button type="button" onClick={() => setConfirmLeave(true)} className={`${isOwner ? "" : "flex-1"} h-12 px-4 rounded-2xl border-[1.5px] border-sand bg-card text-ink font-semibold text-sm`}>
+            Leave team
+          </button>
         </div>
       )}
 
@@ -186,6 +189,34 @@ export default function TeamPage() {
         </div>
       )}
 
+      {confirmLeave && (
+        <ConfirmModal
+          title={`Leave ${r.title}?`}
+          body="Your slot opens again for someone else. You can still request to join later."
+          confirmLabel="Leave"
+          danger
+          onCancel={() => setConfirmLeave(false)}
+          onConfirm={() => {
+            leaveTeam(r.id);
+            showToast(`You left ${r.title}`);
+            router.push("/teams");
+          }}
+        />
+      )}
+      {kickId && (
+        <ConfirmModal
+          title="Remove this member?"
+          body={`${db.profiles.find((x) => x.id === kickId)?.full_name ?? "They"} will be removed and can't request to join this team again.`}
+          confirmLabel="Remove"
+          danger
+          onCancel={() => setKickId(null)}
+          onConfirm={() => {
+            const res = kickMember(r.id, kickId);
+            showToast(res.ok ? "Member removed" : res.error);
+            setKickId(null);
+          }}
+        />
+      )}
       <BottomNav />
     </main>
   );

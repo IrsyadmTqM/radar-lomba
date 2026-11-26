@@ -16,27 +16,32 @@ export const GOAL_OPTIONS: { value: Goal; title: string; hint: string }[] = [
 ];
 
 export const SKILLS = [
-  "Frontend",
-  "Backend",
-  "UI/UX",
-  "Mobile",
-  "Data",
-  "AI/ML",
-  "Pitching",
-  "Business",
+  "Leader",
+  "Research",
   "Writing",
-  "Video",
+  "Presentation",
+  "Design",
+  "Video & content",
+  "Business & finance",
+  "Software dev",
+  "Data & stats",
+  "Engineering",
+  "Science / Lab",
+  "Public speaking",
 ] as const;
 
 export const CATEGORIES = ["Tech", "Business", "Design", "Essay"] as const;
 export type Category = (typeof CATEGORIES)[number];
+
+export const PORTFOLIO_TYPES = ["Achievement", "Project", "Publication", "Experience"] as const;
+export type PortfolioItem = { id: string; type: (typeof PORTFOLIO_TYPES)[number]; title: string; year: number; link: string };
 
 export type Profile = {
   id: string;
   full_name: string;
   avatar_id: number; // 1–10, preset illustration
   major: string;
-  faculty: string;
+  campus: string;
   entry_year: number;
   skills: string[];
   bio: string;
@@ -45,6 +50,9 @@ export type Profile = {
   contact: string;
   data_consent: boolean;
   is_demo: boolean;
+  email?: string;
+  portfolio?: PortfolioItem[];
+  role?: "student" | "admin"; // admins only manage the competition list
 };
 
 export type Competition = {
@@ -58,6 +66,11 @@ export type Competition = {
   min_team_size: number;
   max_team_size: number;
   requirements: string;
+  rewards: string[]; // free-typed tags, e.g. "Prize pool Rp5 jt"
+  student_added?: boolean; // added by a student, shown as "Added by a student"
+  hidden?: boolean; // hidden by an admin
+  poster?: string; // small image as data URL (Supabase Storage later)
+  added_by?: string; // profile id of whoever added it
 };
 
 export type RequestStatus = "open" | "full" | "closed";
@@ -75,6 +88,7 @@ export type TeamRequest = {
   group_link: string;
   status: RequestStatus;
   created_at: number;
+  kicked?: string[]; // profile ids removed by the owner, cannot re-request
 };
 
 export type TeamMember = {
@@ -104,7 +118,7 @@ export type Notice = {
   id: string;
   to_id: string;
   text: string;
-  kind: "accepted" | "declined" | "left" | "full";
+  kind: "accepted" | "declined" | "left" | "full" | "kicked";
   request_id: string;
   created_at: number;
 };
@@ -121,14 +135,4 @@ export type DB = {
   saved: string[]; // saved competition ids
 };
 
-export const FACULTIES = [
-  "Science and Technology",
-  "Economics and Islamic Business",
-  "Social and Political Sciences",
-  "Adab and Humanities",
-  "Dakwah and Communication",
-  "Tarbiyah and Teacher Training",
-  "Sharia and Law",
-  "Ushuluddin",
-  "Psychology",
-];
+export const DEFAULT_CAMPUS = "UIN Sunan Gunung Djati Bandung";

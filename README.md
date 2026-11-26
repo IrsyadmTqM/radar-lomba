@@ -30,7 +30,7 @@ npm start
 
 ## Demo flow (good for the video)
 
-1. **Create my profile**: pick one of 10 avatars, skills (several allowed), major, hours per week and goal.
+1. **Create my profile**: email + password (demo, no confirmation), one of 10 avatars, roles (12 cross-major roles, several allowed), major, hours per week and goal.
 2. A demo team invites you a few seconds later if your skills fit. Accept it in **Inbox**.
 3. Open a competition: see teams looking for people, with the roles you have highlighted. **Request to join** with roles and a short intro message. The demo owner accepts after about 5 seconds.
 4. In a competition with no team of yours, tap **Find teammates** → post your team (image, roles you cover, roles you need, minimum hours, goal) → see matching candidates with a checklist of reasons → **Send invite**. Demo candidates accept after about 4 seconds, and a demo student may ask to join.
@@ -39,12 +39,17 @@ npm start
 
 "I already have an account" opens a ready-made demo account (Dimas A.).
 
+**Remove a member (team owner):** on the team page the owner sees a **Remove** button next to each member. Tap twice to confirm. The person gets a notice in their inbox, the slot opens again, and they cannot request to join that team again.
+
+**Admin:** on the sign-in page, tap "Demo: open admin view". The admin has two pages only. **Manage competitions** (`/admin`) has two tabs: **Official** (Remove) and **Added by students** (Hide/Unhide, with a "Possible duplicate" flag), plus a **+** button. **New competition** (`/admin/new`) takes a poster, name, organizer, category, deadline, team size, link and rules, then **Publish competition**. It appears in every student's list right away (with the poster). A competition can be removed only while no team exists for it. Admins cannot open student pages and students cannot open `/admin`.
+
 ## Rules the app enforces
 
 - One team per competition, but you can join several competitions.
 - Hours are counted across teams. Each team you are in uses its minimum hours per week from your total. Candidate search and join requests only allow people with enough free hours.
 - A team turns **full** at the competition's maximum team size and stops taking requests.
 - Contacts stay hidden until someone is in the same team.
+- Only the team owner can remove members. Students can add a competition ("Not listed? Add a competition", shown as "Added by a student"); only the student who added it can edit or delete it, and admins can hide it.
 - Match score is only used to sort candidates. The UI shows a checklist, never a number.
 
 The matching logic lives in one file: `src/lib/matching.ts`.
@@ -81,7 +86,7 @@ Replace the actions in `src/lib/store.tsx` (`createProfile`, `createRequest`, `s
 
 Complete in this preview: every screen, the multi-competition rules, PWA manifest and icons, empty and error states.
 
-Not yet: real sign-in, database, server-side checks (RLS), CSV import of competitions, push notifications, offline caching (service worker).
+Not yet: real sign-in and real admin accounts (the admin here is a demo button), poster storage (posters are small images kept in the browser), database, server-side checks (RLS), CSV import of competitions, push notifications, offline caching (service worker).
 
 ## Known limitations
 
@@ -94,3 +99,8 @@ Not yet: real sign-in, database, server-side checks (RLS), CSV import of competi
 - Next.js, React, Tailwind CSS (MIT licence). Font: Urbanist (Google Fonts, SIL Open Font Licence).
 - Avatars, team images and illustrations were made for this project.
 - This code was written with an AI coding assistant (Claude) and reviewed by the team.
+
+
+## Also in this build
+
+Rewards as free-typed tags, poster view, Official site link, saved competitions, all-teams page, other students' profile page (with Invite), portfolio items with proof links, edit profile, account settings (email/password, delete account), popup confirms, edit team, Sent tab in Inbox. All data is stored in this browser only (`localStorage`). Mockup and simulated data are labelled "Demo".

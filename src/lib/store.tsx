@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { makeSeed } from "./seed";
-import type { DB, Goal, Invitation, Profile, TeamRequest } from "./types";
+import type { Competition, DB, Goal, Invitation, PortfolioItem, Profile, TeamRequest } from "./types";
 import { freeHours, joinBlocker, teamInCompetition } from "./matching";
 
 /*
@@ -11,7 +11,7 @@ import { freeHours, joinBlocker, teamInCompetition } from "./matching";
  * call later (insert / update on the table with the same name).
  */
 
-const KEY = "radar-lomba-demo-v1";
+const KEY = "radar-lomba-demo-v3";
 const DEMO_DELAY_MS = 4000;
 
 const uid = (p: string) => `${p}-${Math.random().toString(36).slice(2, 9)}`;
@@ -30,6 +30,8 @@ export type NewRequest = {
   description: string;
 };
 
+export type NewCompetition = Omit<Competition, "id" | "added_by" | "student_added" | "hidden">;
+
 type Store = {
   ready: boolean;
   db: DB;
@@ -45,7 +47,18 @@ type Store = {
   respond: (invitationId: string, accept: boolean) => Result;
   setStatus: (requestId: string, status: TeamRequest["status"]) => void;
   setGroupLink: (requestId: string, link: string) => void;
+  updateRequest: (requestId: string, patch: Partial<Pick<TeamRequest, "title" | "icon_id" | "needed_roles" | "description" | "min_hours_per_week">>) => void;
   leaveTeam: (requestId: string) => void;
+  kickMember: (requestId: string, profileId: string) => Result;
+  signOut: () => void;
+  signInAdmin: () => void;
+  addCompetition: (c: NewCompetition) => Result;
+  updateCompetition: (id: string, c: NewCompetition) => Result;
+  removeCompetition: (id: string) => void;
+  setHidden: (id: string, hidden: boolean) => void;
+  addPortfolio: (item: Omit<PortfolioItem, "id">) => void;
+  removePortfolio: (id: string) => void;
+  deleteAccount: () => void;
   toggleSaved: (competitionId: string) => void;
   resetDemo: () => void;
 };
@@ -168,7 +181,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const raw = localStorage.getItem(KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as DB;
-        if (parsed.version === 1) setDb(parsed);
+        if (parsed.version === 3) setDb(parsed);
       }
     } catch {
       /* storage blocked: run on fresh seed */
@@ -411,6 +424,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [update],
   );
 
+  const updateRequest = useCallback(
+    (requestId: string, patch: Partial<Pick<TeamRequest, "title" | "icon_id" | "needed_roles" | "description" | "min_hours_per_week">>) => {
+      update((d) => {
+        const r = d.requests.find((x) => x.id === requestId);
+        if (r && r.owner_id === d.me) Object.assign(r, patch);
+      });
+    },
+    [update],
+  );
+
   const leaveTeam = useCallback(
     (requestId: string) => {
       if (!me) return;
@@ -432,6 +455,151 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     },
     [me, update],
   );
+
+  const kickMember = useCallback(
+    (requestId: string, profileId: string): Result => {
+      if (!me) return { ok: false, error: "Sign in first." };
+      const r = db.requests.find((x) => x.id === requestId);
+      if (!r) return { ok: false, error: "Team not found." };
+      if (r.owner_id !== me.id) return { ok: false, error: "Only the team owner can remove members." };
+      if (profileId === me.id) return { ok: false, error: "You can't remove yourself. Use Leave team." };
+      if (!db.members.some((m) => m.request_id === requestId && m.profile_id === profileId)) return { ok: false, error: "That person is not in the team." };
+      update((d) => {
+        const req = d.requests.find((x) => x.id === requestId)!;
+        d.members = d.members.filter((m) => !(m.request_id === requestId && m.profile_id === profileId));
+        req.kicked = [...(req.kicked ?? []), profileId];
+        if (req.status === "full") req.status = "open";
+        // Close anything still pending between this person and the team.
+        for (const i of d.invitations) {
+          if (i.request_id === requestId && i.status === "pending" && (i.from_id === profileId || i.to_id === profileId)) i.status = "declined";
+        }
+        d.notices.push({ id: uid("n"), to_id: profileId, kind: "kicked", request_id: requestId, created_at: Date.now(), text: `You were removed from ${req.title}. Your slot in this competition is free again.` });
+      });
+      return { ok: true };
+    },
+    [db, me, update],
+  );
+
+  const signOut = useCallback(() => {
+    update((d) => {
+      d.me = null;
+    });
+  }, [update]);
+
+  const signInAdmin = useCallback(() => {
+    update((d) => {
+      let admin = d.profiles.find((p) => p.role === "admin");
+      if (!admin) {
+        admin = {
+          id: "p-admin",
+          full_name: "Campus Admin",
+          avatar_id: 1,
+          major: "",
+          campus: "",
+          entry_year: 2020,
+          skills: [],
+          bio: "",
+          commitment_hours_per_week: 0,
+          commitment_goal: "just_experience",
+          contact: "",
+          data_consent: false,
+          is_demo: false,
+          role: "admin",
+        };
+        d.profiles.push(admin);
+      }
+      d.me = admin.id;
+    });
+  }, [update]);
+
+  const addCompetition = useCallback(
+    (c: NewCompetition): Result => {
+      if (!me) return { ok: false, error: "Sign in first." };
+      if (c.name.trim().length < 3) return { ok: false, error: "Add the competition name." };
+      if (!/^https?:\/\//.test(c.link.trim())) return { ok: false, error: "Add the official link (starting with https://)." };
+      if (!c.registration_deadline) return { ok: false, error: "Pick the registration deadline." };
+      if (c.min_team_size < 1 || c.max_team_size < c.min_team_size) return { ok: false, error: "Team size is not valid." };
+      const id = uid("c");
+      update((d) => {
+        d.competitions.push({ ...c, id, name: c.name.trim(), added_by: me.id, student_added: me.role !== "admin" });
+      });
+      return { ok: true, id };
+    },
+    [me, update],
+  );
+
+  const updateCompetition = useCallback(
+    (id: string, c: NewCompetition): Result => {
+      const cur = db.competitions.find((x) => x.id === id);
+      if (!cur || !me || cur.added_by !== me.id) return { ok: false, error: "Only the person who added it can edit." };
+      if (c.name.trim().length < 3) return { ok: false, error: "Add the competition name." };
+      if (!/^https?:\/\//.test(c.link.trim())) return { ok: false, error: "Add the official link (starting with https://)." };
+      update((d) => {
+        const x = d.competitions.find((y) => y.id === id);
+        if (x) Object.assign(x, c, { name: c.name.trim() });
+      });
+      return { ok: true, id };
+    },
+    [db, me, update],
+  );
+
+  const removeCompetition = useCallback(
+    (id: string) => {
+      update((d) => {
+        if (d.requests.some((r) => r.competition_id === id)) return { ok: false, error: "Teams already exist for this competition." };
+        d.competitions = d.competitions.filter((c) => c.id !== id);
+        d.saved = d.saved.filter((x) => x !== id);
+      });
+    },
+    [update],
+  );
+
+  const setHidden = useCallback(
+    (id: string, hidden: boolean) => {
+      update((d) => {
+        const c = d.competitions.find((x) => x.id === id);
+        if (c) c.hidden = hidden;
+      });
+    },
+    [update],
+  );
+
+  const addPortfolio = useCallback(
+    (item: Omit<PortfolioItem, "id">) => {
+      update((d) => {
+        const p = d.profiles.find((x) => x.id === d.me);
+        if (p) p.portfolio = [...(p.portfolio ?? []), { ...item, id: uid("pf") }];
+      });
+    },
+    [update],
+  );
+
+  const removePortfolio = useCallback(
+    (id: string) => {
+      update((d) => {
+        const p = d.profiles.find((x) => x.id === d.me);
+        if (p) p.portfolio = (p.portfolio ?? []).filter((x) => x.id !== id);
+      });
+    },
+    [update],
+  );
+
+  const deleteAccount = useCallback(() => {
+    update((d) => {
+      const id = d.me;
+      if (!id) return;
+      for (const r of d.requests) {
+        if (r.owner_id !== id) continue;
+        const next = d.members.filter((m) => m.request_id === r.id && m.profile_id !== id).sort((a, b) => a.joined_at - b.joined_at)[0];
+        if (next) r.owner_id = next.profile_id;
+        else r.status = "closed";
+      }
+      d.members = d.members.filter((m) => m.profile_id !== id);
+      d.invitations = d.invitations.filter((i) => i.from_id !== id && i.to_id !== id);
+      d.profiles = d.profiles.filter((p) => p.id !== id);
+      d.me = null;
+    });
+  }, [update]);
 
   const toggleSaved = useCallback(
     (competitionId: string) => {
@@ -466,7 +634,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     respond,
     setStatus,
     setGroupLink,
+    updateRequest,
     leaveTeam,
+    kickMember,
+    signOut,
+    signInAdmin,
+    addCompetition,
+    updateCompetition,
+    removeCompetition,
+    setHidden,
+    addPortfolio,
+    removePortfolio,
+    deleteAccount,
     toggleSaved,
     resetDemo,
   };
