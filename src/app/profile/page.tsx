@@ -9,7 +9,7 @@ import { GOAL_OPTIONS, SKILLS } from "@/lib/types";
 import { BottomNav } from "@/components/BottomNav";
 import { Avatar, ConfirmModal, ContactList, TogglePill } from "@/components/ui";
 import { contactLinks } from "@/lib/contacts";
-import { IconPlus } from "@/components/Icons";
+import { IconPencil, IconPlus } from "@/components/Icons";
 import { PortfolioList } from "@/components/PortfolioList";
 
 export default function Profile() {
@@ -30,7 +30,12 @@ export default function Profile() {
 
   return (
     <main className="min-h-dvh px-5 pt-14 pb-32 flex flex-col gap-4">
-      <h1 className="m-0 text-[28px] font-bold">Profile</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="m-0 text-[28px] font-bold">Profile</h1>
+        <Link href="/profile/edit" aria-label="Edit profile" title="Edit profile" className="group w-11 h-11 rounded-[14px] bg-card text-ink flex items-center justify-center">
+          <IconPencil size={20} className="transition-transform duration-200 group-hover:-rotate-12" />
+        </Link>
+      </div>
 
       <div className="bg-card rounded-[24px] p-4 flex items-center gap-4">
         <Link href="/profile/edit" aria-label="Edit profile" className="rounded-[22px] shadow-[0_0_0_4px_#CEEC68]">
