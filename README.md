@@ -1,10 +1,18 @@
-# Radar Lomba (frontend preview)
+# Radar Lomba
 
-Radar Lomba helps undergraduates at one pilot campus (UIN Sunan Gunung Djati Bandung) form teams for a specific competition, matched on skills and commitment. Built for STACK 2026, Case 1: Smarter Campus and Learning.
+**Find a competition. Build the right team.**
 
-This folder is the **frontend only**. It runs on fictional demo data stored in the browser (localStorage), so the whole flow can be clicked through without a backend. Supabase comes next.
+Radar Lomba helps undergraduates at one pilot campus (UIN Sunan Gunung Djati Bandung) form teams for a specific competition. A student opens a competition, posts a team with the roles it still needs, sees matching students, sends invites, and the team forms when people accept. Matching is plain rules (roles, free hours, goal). There is no AI in the product.
 
-## Run locally
+Built by team Xplover for **STACK 2026**, Case 1: Smarter Campus and Learning.
+
+> **Status: semifinal prototype.** This repository is the **frontend only**. It runs on demo data stored in the browser (`localStorage`), so the whole flow can be clicked through without a backend. The real database and sign-in (Supabase) are planned for the Final Round and are not built yet. See [Complete vs not yet](#complete-vs-not-yet).
+
+## Why it exists
+
+Students who want to enter a competition usually look for teammates through chat groups and Instagram stories. They find the same friend circle, and they can't tell whether a stranger has the right skills or enough time. Radar Lomba puts the competition first: you see who is free, what they can do, and whether their goal matches yours.
+
+## Quick start
 
 Needs Node.js 20 or newer.
 
@@ -13,94 +21,114 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000 on your phone width (Chrome DevTools, device toolbar), or on your phone over the same Wi-Fi.
-
-Production build:
+Open http://localhost:3000 in a phone-width window (Chrome DevTools, device toolbar), or on your phone over the same Wi-Fi.
 
 ```bash
-npm run build
-npm start
+npm run build   # production build
+npm start       # serve the build
+npm run lint    # type check (tsc --noEmit)
 ```
 
-## Deploy to Vercel
+No environment variables are needed. `.env.example` lists the Supabase keys for later.
 
-1. Push this folder to a GitHub repository.
-2. On vercel.com, choose **Add New → Project**, import the repository, and keep the default Next.js settings.
-3. No environment variables are needed for this preview. `.env.example` lists the Supabase keys for later.
+### Deploy to Vercel
 
-## Demo flow (good for the video)
+1. Push this repository to GitHub.
+2. On vercel.com choose **Add New → Project**, import the repository and keep the default Next.js settings.
+3. Deploy. No environment variables are required for this preview.
 
-1. **Create my profile**: email + password (demo, no confirmation), one of 10 avatars, roles (12 cross-major roles, several allowed), major, hours per week and goal.
-2. A demo team invites you a few seconds later if your skills fit. Accept it in **Inbox**.
-3. Open a competition: see teams looking for people, with the roles you have highlighted. **Request to join** with roles and a short intro message. The demo owner accepts after about 5 seconds.
-4. In a competition with no team of yours, tap **Find teammates** → post your team (image, roles you cover, roles you need, minimum hours, goal) → see matching candidates with a checklist of reasons → **Send invite**. Demo candidates accept after about 4 seconds, and a demo student may ask to join.
-5. **My teams** shows your time across competitions. The **team page** has the registration countdown, members with contacts (members only), the WhatsApp group link, "We're complete" and "Leave team".
+## Try the core flow (about 2 minutes)
+
+1. **Create my profile.** Email and password (demo: nothing is verified), pick one of 10 avatars and your name, choose your roles (12 cross-major roles), campus, major, entry year, weekly hours, goal and contacts.
+2. A demo team invites you a few seconds later if your roles fit. Accept it in **Inbox**.
+3. Open a competition. You see the teams looking for people, with the roles you have highlighted. Tap **Request to join**, pick your roles and write a short intro. A demo owner replies after about 5 seconds.
+4. Or tap **Create a team**: name it, pick an image, choose the roles you need, minimum hours and goal. You then see matching students, each with a checklist of reasons (never a score). Tap **Send invite**. Demo students accept after about 4 seconds.
+5. **My teams** shows your teams and your free hours. The team page has the registration countdown, members, the group link, **We're complete** and **Leave team**.
 6. **Profile → Reset demo** starts over.
 
-"I already have an account" opens a ready-made demo account (Dimas A.).
+Shortcuts: on the sign-in page, "I already have an account" opens a ready-made demo account (Asep A.), and **Demo: open admin view** opens the admin pages.
 
-**Remove a member (team owner):** on the team page the owner sees a **Remove** button next to each member. Tap twice to confirm. The person gets a notice in their inbox, the slot opens again, and they cannot request to join that team again.
+## Features
 
-**Admin:** on the sign-in page, tap "Demo: open admin view". The admin has two pages only. **Manage competitions** (`/admin`) has two tabs: **Official** (Remove) and **Added by students** (Hide/Unhide, with a "Possible duplicate" flag), plus a **+** button. **New competition** (`/admin/new`) takes a poster, name, organizer, category, deadline, team size, link and rules, then **Publish competition**. It appears in every student's list right away (with the poster). A competition can be removed only while no team exists for it. Admins cannot open student pages and students cannot open `/admin`.
+**Students**
+- Competition list with search, category chips, saved competitions, rewards as tags and a "Closing soon" highlight.
+- Competition detail: rules, deadline, team size, poster, official site, teams looking for people.
+- Add a competition that is not listed. It shows as "Added by student". Only the person who added it can edit or delete it, and an admin can hide it.
+- Team creation, candidate search, invite and join request flows, with a Sent and Received inbox.
+- Profiles with roles, weekly hours, goal, contacts (WhatsApp required, Instagram and LinkedIn optional) and a portfolio where every item needs a proof link.
+- Other students' profile pages, with Invite from the candidate list.
+- Account settings (change email, password, contacts, delete account) and confirmation popups for risky actions.
+
+**Admin (demo)**
+- `/admin` lists competitions in two tabs: **Official** (remove) and **Added by students** (hide or unhide, with a "Possible duplicate" flag).
+- `/admin/new` adds an official competition. Admins cannot open student pages and students cannot open `/admin`.
 
 ## Rules the app enforces
 
 - One team per competition, but you can join several competitions.
-- Hours are counted across teams. Each team you are in uses its minimum hours per week from your total. Candidate search and join requests only allow people with enough free hours.
-- A team turns **full** at the competition's maximum team size and stops taking requests.
-- Contacts stay hidden until someone is in the same team.
-- Only the team owner can remove members. Students can add a competition ("Not listed? Add a competition", shown as "Added by a student"); only the student who added it can edit or delete it, and admins can hide it.
-- Match score is only used to sort candidates. The UI shows a checklist, never a number.
+- Hours are counted across teams. Each team you are in uses its minimum hours per week from your total. Search and join requests only allow people with enough free hours.
+- A team turns **full** at the competition's maximum size and stops taking requests.
+- Contacts are shown only on the profile of someone in the same team, never on public lists.
+- Only the team owner can remove members. A removed person cannot request that team again.
+- Empty teams are deleted, and pages that point to a deleted team, competition or account show a "no longer exists" message.
+- The match score is only used to sort candidates. The UI shows reasons, never a number.
 
-The matching logic lives in one file: `src/lib/matching.ts`.
+## How matching works
+
+Everything is in one readable file: [`src/lib/matching.ts`](src/lib/matching.ts).
+
+| Signal | Weight |
+| --- | --- |
+| Share of the roles the team needs that the student can cover | 60% |
+| Free hours per week at least the team's minimum | 20% |
+| Same goal as the team (experience, finalist, win) | 20% |
+
+Students without enough free hours, or already in a team for that competition, are filtered out before scoring.
 
 ## Project structure
 
 ```
 src/
-  app/                      pages (Next.js App Router)
-    page.tsx                welcome
-    onboarding/             3-step profile setup
-    login/                  demo sign-in
-    competitions/           list, detail, join request, post a team
-    teams/                  my teams, team page, candidates, team ready
-    inbox/                  received and sent, accept / decline
-    profile/                edit profile, reset demo
-  components/               bottom nav, icons, shared UI
+  app/                  pages (Next.js App Router)
+    onboarding/         4-step sign-up and profile setup
+    competitions/       list, detail, poster, all teams, add or edit, join request, create team
+    teams/              my teams, team page, candidates, edit team, team ready
+    inbox/              received and sent, accept or decline
+    profile/            profile, edit, account settings, portfolio
+    users/              another student's profile
+    saved/              saved competitions
+    admin/              demo admin pages
+  components/           bottom nav, icons, shared UI, forms
   lib/
-    types.ts                data shapes (match the planned Supabase tables)
-    seed.ts                 fictional demo data
-    matching.ts             score, free hours, eligibility rules
-    store.tsx               local demo store; each action maps to one Supabase call later
-public/
-  avatars/                  10 preset avatars (no photo upload)
-  team-icons/               10 preset team images (objects, no people)
-  illustrations/, logo/, icons/, manifest.webmanifest
+    types.ts            data shapes (match the planned Supabase tables)
+    seed.ts             fictional demo data
+    matching.ts         score, free hours, eligibility rules
+    contacts.ts         contact validation and links
+    store.tsx           local demo store; each action maps to one Supabase call later
+public/                 avatars, team images, illustrations, logo, PWA icons and manifest
 ```
+
+Stack: Next.js 15 (App Router), React 19, Tailwind CSS 4, TypeScript 5.
 
 ## Connecting Supabase later
 
-Replace the actions in `src/lib/store.tsx` (`createProfile`, `createRequest`, `sendInvite`, `sendJoin`, `respond`, `leaveTeam`, and so on) with Supabase queries on the tables of the same names. `src/lib/types.ts` already follows that schema. Remove the demo auto-answer timer when real users answer.
+Replace the actions in `src/lib/store.tsx` (`createProfile`, `createRequest`, `sendInvite`, `sendJoin`, `respond`, `leaveTeam` and the rest) with Supabase queries on tables of the same names. `src/lib/types.ts` already follows that schema. Remove the demo auto-answer timer when real users answer. Row-level security rules replace the checks that the demo store does in code.
 
 ## Complete vs not yet
 
-Complete in this preview: every screen, the multi-competition rules, PWA manifest and icons, empty and error states.
+**Complete in this prototype:** every screen above, the multi-competition rules, form validation, empty and error states, and the PWA manifest and icons.
 
-Not yet: real sign-in and real admin accounts (the admin here is a demo button), poster storage (posters are small images kept in the browser), database, server-side checks (RLS), CSV import of competitions, push notifications, offline caching (service worker).
+**Not yet:** real sign-in and real admin accounts, a database, server-side checks (RLS), poster storage (posters are small images kept in the browser), CSV import of competitions, push notifications, offline caching.
 
 ## Known limitations
 
 - Data lives in one browser only. Clearing site data resets it.
-- All competitions, teams and people are fictional and marked "Demo" or "Sample". Links are placeholders.
-- Demo profiles answer automatically after a few seconds to show the flow.
+- Competitions, teams and people are fictional and marked "Demo" or "Sample". Their links are placeholders.
+- Demo profiles answer automatically after a few seconds so the flow can be shown without a second person.
+- The sign-in and email steps are simulated. Nothing is sent.
 
 ## Third-party resources and AI assistance
 
-- Next.js, React, Tailwind CSS (MIT licence). Font: Urbanist (Google Fonts, SIL Open Font Licence).
+- Next.js, React and Tailwind CSS (MIT licence). Font: Urbanist (Google Fonts, SIL Open Font Licence).
 - Avatars, team images and illustrations were made for this project.
-- This code was written with an AI coding assistant (Claude) and reviewed by the team.
-
-
-## Also in this build
-
-Rewards as free-typed tags, poster view, Official site link, saved competitions, all-teams page, other students' profile page (with Invite), portfolio items with proof links, edit profile, account settings (email/password, delete account), popup confirms, edit team, Sent tab in Inbox. All data is stored in this browser only (`localStorage`). Mockup and simulated data are labelled "Demo".
+- **AI disclosure:** the product itself uses no AI. The code and design files were produced with an AI coding assistant (Claude) and reviewed by the team.
