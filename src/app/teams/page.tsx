@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { daysLeft, useStore } from "@/lib/store";
-import { freeHours, joinBlocker, teamsOf, usedHours } from "@/lib/matching";
+import { activeTeamsOf, freeHours, joinBlocker, teamsOf, usedHours } from "@/lib/matching";
 import { GOAL_LABEL } from "@/lib/types";
 import { BottomNav } from "@/components/BottomNav";
 import { DemoTag, SectionTitle, TeamIcon } from "@/components/ui";
@@ -14,6 +14,7 @@ export default function MyTeams() {
   const [q, setQ] = useState("");
   if (!me) return null;
   const teams = teamsOf(db, me.id);
+  const active = activeTeamsOf(db, me.id).length;
   const used = usedHours(db, me.id);
   const free = freeHours(db, me.id);
   const query = q.trim().toLowerCase();
@@ -93,7 +94,7 @@ export default function MyTeams() {
           <div className="h-full bg-lime rounded-full" style={{ width: `${pct}%` }} />
         </div>
         <span className="text-xs text-mist">
-          {used} of {me.commitment_hours_per_week} h/week used by {teams.length} team{teams.length === 1 ? "" : "s"}. One team per competition.
+          {used} of {me.commitment_hours_per_week} h/week used by {active} active team{active === 1 ? "" : "s"}. One team per competition.
         </span>
       </div>
 

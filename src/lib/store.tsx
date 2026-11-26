@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { makeSeed } from "./seed";
 import type { Competition, DB, Goal, Invitation, PortfolioItem, Profile, TeamRequest } from "./types";
-import { freeHours, joinBlocker, teamInCompetition } from "./matching";
+import { freeHours, isClosed, joinBlocker, teamInCompetition } from "./matching";
 
 /*
  * Local demo store. Everything lives in the browser (localStorage) so the
@@ -134,6 +134,18 @@ function applyAnswer(db: DB, inv: Invitation, accept: boolean): Result {
   const blocker = joinBlocker(db, r, personId);
   if (blocker) {
     inv.status = "declined";
+    // Tell the sender why nothing happened, so an automatic answer is never silent.
+    db.notices.push({
+      id: uid("n"),
+      to_id: tellId,
+      kind: "declined",
+      request_id: r.id,
+      created_at: Date.now(),
+      text:
+        inv.type === "invite"
+          ? `${nameOf(db, answerer)} could not join ${r.title}: ${blocker.replace(/^You're/, "they're").replace(/^You have/, "they have")}`
+          : `Your request to join ${r.title} could not be completed: ${blocker}`,
+    });
     return { ok: false, error: blocker };
   }
 
@@ -296,6 +308,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const createRequest = useCallback(
     (r: NewRequest): Result => {
       if (!me) return { ok: false, error: "Create your profile first." };
+      if (isClosed(db, r.competition_id)) return { ok: false, error: "Registration for this competition has closed." };
       const existing = teamInCompetition(db, me.id, r.competition_id);
       if (existing) return { ok: false, error: `You're already in ${existing.title} for this competition.` };
       const id = uid("r");
