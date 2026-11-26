@@ -1,6 +1,14 @@
-# Radar Lomba
+<p align="center">
+  <img src="docs/logo-white.png" alt="Radar Lomba" width="220">
+</p>
 
-**Find a competition. Build the right team.**
+<p align="center"><b>Find a competition. Build the right team.</b></p>
+
+<p align="center">
+  <img src="docs/screenshots/overview.png" alt="Radar Lomba screens: welcome, competitions, competition detail, find teammates, inbox, profile">
+</p>
+
+<p align="center"><sub>Screens from the running prototype. All people, teams and competitions shown are demo data.</sub></p>
 
 Radar Lomba helps undergraduates at one pilot campus (UIN Sunan Gunung Djati Bandung) form teams for a specific competition. A student opens a competition, posts a team with the roles it still needs, sees matching students, sends invites, and the team forms when people accept. Matching is plain rules (roles, free hours, goal). There is no AI in the product.
 
@@ -47,6 +55,18 @@ No environment variables are needed. `.env.example` lists the Supabase keys for 
 6. **Profile → Reset demo** starts over.
 
 Shortcuts: on the sign-in page, "I already have an account" opens a ready-made demo account (Asep A.), and **Demo: open admin view** opens the admin pages.
+
+## Screens
+
+| Welcome | Competitions | Competition detail |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/01-welcome.png" width="220" alt="Welcome"> | <img src="docs/screenshots/02-competitions.png" width="220" alt="Competition list"> | <img src="docs/screenshots/03-competition-detail.png" width="220" alt="Competition detail"> |
+| Start here | Search, categories, closing soon | Rules, deadline, teams looking for people |
+
+| Create a team | Find teammates | Inbox |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/04-create-team.png" width="220" alt="Create a team"> | <img src="docs/screenshots/05-candidates.png" width="220" alt="Find teammates"> | <img src="docs/screenshots/06-inbox.png" width="220" alt="Inbox"> |
+| Roles you need, hours, goal | Matches with reasons, no score | Accept or decline invites |
 
 ## Features
 
