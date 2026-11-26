@@ -11,7 +11,8 @@ import { freeHours, isClosed, joinBlocker, teamInCompetition } from "./matching"
  * call later (insert / update on the table with the same name).
  */
 
-const KEY = "radar-lomba-demo-v3";
+// v4: competitions replaced by the imported sheet, so old saved state would point at missing ids.
+const KEY = "radar-lomba-demo-v4";
 const DEMO_DELAY_MS = 4000;
 
 const uid = (p: string) => `${p}-${Math.random().toString(36).slice(2, 9)}`;
