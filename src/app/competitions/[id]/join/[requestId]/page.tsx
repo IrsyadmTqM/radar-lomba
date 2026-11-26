@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { freeHours } from "@/lib/matching";
-import { TeamIcon, TogglePill, FormAlert, useFormError } from "@/components/ui";
+import { Gone, TeamIcon, TogglePill, FormAlert, useFormError } from "@/components/ui";
 import { IconClose, IconInfo, IconSend } from "@/components/Icons";
 
 export default function JoinRequest() {
@@ -20,7 +20,8 @@ export default function JoinRequest() {
   const [msg, setMsg] = useState("");
   const { error, nonce, setError, clear } = useFormError();
 
-  if (!c || !r || !me) return null;
+  if (!me) return null;
+  if (!c || !r) return <Gone title="This team no longer exists" body="Everyone left the team, so it was deleted." href="/competitions" label="Browse competitions" />;
 
   const free = freeHours(db, me.id);
   const toggle = (role: string) => setRoles((cur) => (cur.includes(role) ? cur.filter((x) => x !== role) : [...cur, role]));

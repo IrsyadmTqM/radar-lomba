@@ -3,17 +3,17 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useStore } from "@/lib/store";
-import { BackButton } from "@/components/ui";
+import { BackButton, Gone } from "@/components/ui";
 
 export default function Poster() {
   const { id } = useParams<{ id: string }>();
   const { db } = useStore();
   const c = db.competitions.find((x) => x.id === id);
-  if (!c) return null;
+  if (!c) return <Gone title="This competition was removed" body="It is no longer listed." href="/competitions" label="Back to competitions" />;
   return (
     <main className="min-h-dvh px-5 pt-14 pb-10 flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <BackButton href={`/competitions/${c.id}`} />
+        <BackButton />
         <h1 className="m-0 text-xl font-bold truncate">{c.name}</h1>
       </div>
       {c.poster ? (

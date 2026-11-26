@@ -47,10 +47,13 @@ export type Profile = {
   bio: string;
   commitment_hours_per_week: number;
   commitment_goal: Goal;
-  contact: string;
+  whatsapp: string; // required, digits as typed (08xx / +62xx)
+  instagram?: string; // optional handle
+  linkedin?: string; // optional username or profile URL
   data_consent: boolean;
   is_demo: boolean;
   email?: string;
+  password?: string; // demo only: kept in this browser to confirm account changes
   portfolio?: PortfolioItem[];
   role?: "student" | "admin"; // admins only manage the competition list
 };
@@ -110,6 +113,7 @@ export type Invitation = {
   message: string;
   status: InvitationStatus;
   created_at: number;
+  dismissed_by?: string[]; // profile ids that cleared it from their inbox
   // Demo only: when a demo profile should answer automatically.
   auto_answer_at?: number;
 };
@@ -136,3 +140,25 @@ export type DB = {
 };
 
 export const DEFAULT_CAMPUS = "UIN Sunan Gunung Djati Bandung";
+
+/** Max lengths for free-text fields, shared by every form. */
+export const MAX = {
+  name: 50,
+  email: 80,
+  campus: 80,
+  major: 60,
+  bio: 160,
+  whatsapp: 16,
+  instagram: 30,
+  linkedin: 100,
+  teamName: 30,
+  teamDesc: 200,
+  compName: 80,
+  organizer: 60,
+  compType: 40,
+  link: 200,
+  reward: 40,
+  rules: 300,
+} as const;
+
+export const WA_GROUP_RE = /^https:\/\/chat\.whatsapp\.com\/\S+$/;

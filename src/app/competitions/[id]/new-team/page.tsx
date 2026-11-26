@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { freeHours } from "@/lib/matching";
-import { GOAL_OPTIONS, SKILLS, type Goal } from "@/lib/types";
+import { GOAL_OPTIONS, MAX, SKILLS, WA_GROUP_RE, type Goal } from "@/lib/types";
 import { BackButton, Field, PrimaryArrowButton, TogglePill, inputCls, teamIconSrc, FormAlert, useFormError, textareaCls } from "@/components/ui";
 import { IconCheck } from "@/components/Icons";
 
@@ -21,7 +21,8 @@ export default function NewTeam() {
   const [minHours, setMinHours] = useState(8);
   const [goal, setGoal] = useState<Goal>(me?.commitment_goal ?? "finalist");
   const [desc, setDesc] = useState("");
-  const { error, nonce, setError, clear } = useFormError();
+  const [groupLink, setGroupLink] = useState("");
+  const { error, nonce, setError, clear, invalid } = useFormError();
 
   if (!c || !me) return null;
   const free = freeHours(db, me.id);
@@ -29,11 +30,12 @@ export default function NewTeam() {
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
   function submit() {
-    setError("");
-    if (title.trim().length < 3) return setError("Give your team a name.");
+    if (title.trim().length < 3) return setError("Give your team a name.", "title");
     if (!myRoles.length) return setError("Pick the role you cover.");
     if (!needed.length) return setError("Pick at least one role you need.");
     if (minHours > free) return setError(`You only have ${free} h/week free. Lower the minimum or free up time first.`);
+    if (!groupLink.trim()) return setError("Add your team's WhatsApp group link.", "group");
+    if (!WA_GROUP_RE.test(groupLink.trim())) return setError("Paste a WhatsApp group invite link (https://chat.whatsapp.com/...).", "group");
     const res = createRequest({
       competition_id: c!.id,
       title: title.trim().startsWith("Team") ? title.trim() : `Team ${title.trim()}`,
@@ -43,6 +45,7 @@ export default function NewTeam() {
       min_hours_per_week: minHours,
       goal,
       description: desc.trim(),
+      group_link: groupLink.trim(),
     });
     if (!res.ok) return setError(res.error);
     showToast("Team posted. Here are people who fit.");
@@ -60,7 +63,7 @@ export default function NewTeam() {
       </div>
 
       <Field label="Team name">
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Ombak" className={inputCls} />
+        <input name="title" aria-invalid={invalid("title")} value={title} maxLength={MAX.teamName} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Ombak" className={inputCls} />
       </Field>
 
       <div className="flex flex-col gap-2">
@@ -130,7 +133,11 @@ export default function NewTeam() {
       </div>
 
       <Field label="What are you building? (optional)">
-        <textarea value={desc} maxLength={200} onChange={(e) => setDesc(e.target.value)} placeholder="One or two lines about your idea." className={textareaCls} />
+        <textarea value={desc} maxLength={MAX.teamDesc} onChange={(e) => setDesc(e.target.value)} placeholder="One or two lines about your idea." className={textareaCls} />
+      </Field>
+
+      <Field label="Team WhatsApp group link" hint="Required. Only members see it. You can change it later.">
+        <input name="group" aria-invalid={invalid("group")} value={groupLink} maxLength={MAX.link} onChange={(e) => setGroupLink(e.target.value)} placeholder="https://chat.whatsapp.com/..." inputMode="url" className={inputCls} />
       </Field>
 
       <FormAlert message={error} nonce={nonce} />

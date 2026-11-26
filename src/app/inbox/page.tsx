@@ -8,7 +8,7 @@ import { freeHours } from "@/lib/matching";
 import { GOAL_LABEL, type Invitation } from "@/lib/types";
 import { BottomNav } from "@/components/BottomNav";
 import { Avatar, DemoTag, TeamIcon } from "@/components/ui";
-import { IconCheck, IconClose, IconClock } from "@/components/Icons";
+import { IconCheck, IconClose, IconClock, IconTrash } from "@/components/Icons";
 
 export default function InboxPage() {
   return (
@@ -19,7 +19,7 @@ export default function InboxPage() {
 }
 
 function Inbox() {
-  const { db, me, now, respond, showToast } = useStore();
+  const { db, me, now, respond, showToast, dismissNotice, clearNotices, dismissInvitation } = useStore();
   const router = useRouter();
   const params = useSearchParams();
   const tab = params.get("tab") === "sent" ? "sent" : "received";
@@ -27,7 +27,7 @@ function Inbox() {
 
   const invs = visibleInvitations(db, now);
   const received = invs.filter((i) => i.to_id === me.id && i.status === "pending").sort((a, b) => b.created_at - a.created_at);
-  const sent = invs.filter((i) => i.from_id === me.id).sort((a, b) => b.created_at - a.created_at);
+  const sent = invs.filter((i) => i.from_id === me.id && !i.dismissed_by?.includes(me.id)).sort((a, b) => b.created_at - a.created_at);
   const earlier = db.notices.filter((n) => n.to_id === me.id).sort((a, b) => b.created_at - a.created_at);
 
   const team = (id: string) => db.requests.find((r) => r.id === id);
@@ -120,15 +120,40 @@ function Inbox() {
 
       {tab === "received" && earlier.length > 0 && (
         <>
-          <span className="text-xs text-muted mt-1">Earlier</span>
-          {earlier.map((n) => (
-            <Link key={n.id} href={`/teams/${n.request_id}`} className="no-underline text-ink bg-card rounded-[18px] px-3.5 py-3 flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${n.kind === "accepted" || n.kind === "full" ? "bg-lime" : "bg-sand"}`}>
-                {n.kind === "accepted" || n.kind === "full" ? <IconCheck size={18} strokeWidth={2.2} /> : <IconClose size={16} />}
+          <div className="flex items-center justify-between mt-1">
+            <span className="text-xs text-muted">Earlier</span>
+            <button
+              type="button"
+              onClick={() => {
+                clearNotices();
+                showToast("Notifications cleared");
+              }}
+              className="text-xs underline text-ink"
+            >
+              Clear all
+            </button>
+          </div>
+          {earlier.map((n) => {
+            const exists = !!team(n.request_id);
+            const good = n.kind === "accepted" || n.kind === "full";
+            return (
+              // One-way notice: not a link. Actions only through its buttons.
+              <div key={n.id} className="animate-rise bg-card rounded-[18px] pl-3.5 pr-2 py-3 flex items-start gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${good ? "bg-lime" : "bg-sand"}`}>{good ? <IconCheck size={18} strokeWidth={2.2} /> : <IconClose size={16} />}</div>
+                <div className="flex-1 flex flex-col gap-1.5 min-w-0 pt-0.5">
+                  <span className="text-[13px] leading-snug">{n.text}</span>
+                  {exists && n.kind !== "kicked" ? (
+                    <Link href={`/teams/${n.request_id}`} className="self-start h-8 px-3 rounded-lg bg-paper text-ink no-underline flex items-center text-xs font-semibold">
+                      Open team
+                    </Link>
+                  ) : !exists ? (
+                    <span className="self-start text-[11px] text-muted bg-paper rounded-md px-1.5 py-0.5">Team deleted</span>
+                  ) : null}
+                </div>
+                <DismissButton onClick={() => dismissNotice(n.id)} />
               </div>
-              <span className="flex-1 text-[13px] leading-snug">{n.text}</span>
-            </Link>
-          ))}
+            );
+          })}
         </>
       )}
 
@@ -136,21 +161,48 @@ function Inbox() {
         sent.map((inv) => {
           const r = team(inv.request_id);
           const to = person(inv.to_id);
-          if (!r || !to) return null;
+          const done = inv.status !== "pending";
           return (
-            <div key={inv.id} className="bg-card rounded-[20px] p-3.5 flex items-center gap-3">
-              {inv.type === "invite" ? <Avatar id={to.avatar_id} alt={to.full_name} /> : <TeamIcon id={r.icon_id} size={44} radius={14} alt={r.title} />}
+            <div key={inv.id} className="animate-rise bg-card rounded-[20px] p-3.5 pr-2 flex items-center gap-3">
+              {r ? (
+                inv.type === "invite" && to ? <Avatar id={to.avatar_id} alt={to.full_name} /> : <TeamIcon id={r.icon_id} size={44} radius={14} alt={r.title} />
+              ) : (
+                <div className="w-11 h-11 rounded-[14px] bg-sand flex items-center justify-center shrink-0">
+                  <IconClose size={18} />
+                </div>
+              )}
               <div className="flex-1 flex flex-col gap-0.5 min-w-0">
-                <span className="text-sm leading-snug">{inv.type === "invite" ? <>Invited <b>{to.full_name}</b> to {r.title}</> : <>Asked to join <b>{r.title}</b></>}</span>
+                <span className="text-sm leading-snug">
+                  {!r ? (
+                    <span className="text-muted">This team was deleted</span>
+                  ) : inv.type === "invite" ? (
+                    <>
+                      Invited <b>{to?.full_name ?? "someone"}</b> to {r.title}
+                    </>
+                  ) : (
+                    <>
+                      Asked to join <b>{r.title}</b>
+                    </>
+                  )}
+                </span>
                 <span className="text-xs text-muted">as {inv.roles.join(", ")}</span>
               </div>
               <StatusPill status={inv.status} />
+              {done && <DismissButton onClick={() => dismissInvitation(inv.id)} />}
             </div>
           );
         })}
 
       <BottomNav />
     </main>
+  );
+}
+
+function DismissButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" aria-label="Delete from inbox" onClick={onClick} className="w-9 h-9 rounded-xl flex items-center justify-center text-muted hover:text-danger hover:bg-danger-soft shrink-0">
+      <IconTrash size={16} />
+    </button>
   );
 }
 

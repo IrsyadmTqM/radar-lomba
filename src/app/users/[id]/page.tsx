@@ -5,7 +5,8 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { freeHours, joinBlocker } from "@/lib/matching";
 import { GOAL_LABEL } from "@/lib/types";
-import { Avatar, BackButton, DemoTag } from "@/components/ui";
+import { Avatar, BackButton, ContactList, DemoTag, Gone } from "@/components/ui";
+import { contactLinks } from "@/lib/contacts";
 import { PortfolioList } from "@/components/PortfolioList";
 
 function Body() {
@@ -14,7 +15,11 @@ function Body() {
   const { db, me, sendInvite, showToast } = useStore();
   const p = db.profiles.find((x) => x.id === id);
   const r = team ? db.requests.find((x) => x.id === team) : undefined;
-  if (!p || !me) return null;
+  if (!me) return null;
+  if (!p) return <Gone title="This account no longer exists" body="The person deleted their account." href="/competitions" label="Back to competitions" />;
+  // Contacts are shared only between people on the same team.
+  const myTeams = new Set(db.members.filter((m) => m.profile_id === me.id).map((m) => m.request_id));
+  const teammate = db.members.some((m) => m.profile_id === p.id && myTeams.has(m.request_id));
 
   const invited = !!r && db.invitations.some((i) => i.request_id === r.id && i.to_id === p.id && i.type === "invite" && i.status === "pending");
   const canInvite = !!r && r.owner_id === me.id && r.status === "open" && !joinBlocker(db, r, p.id);
@@ -53,6 +58,12 @@ function Body() {
           <span className="font-semibold">{GOAL_LABEL[p.commitment_goal]}</span>
         </div>
       </div>
+      {teammate && contactLinks(p).length > 0 && (
+        <div className="flex flex-col gap-2">
+          <span className="text-[13px] font-semibold">Contacts</span>
+          <ContactList links={contactLinks(p)} />
+        </div>
+      )}
       <span className="text-[13px] font-semibold">Portfolio</span>
       <PortfolioList items={p.portfolio ?? []} />
       {r && (

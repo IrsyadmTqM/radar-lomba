@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { BackButton, Field, FormAlert, PrimaryArrowButton, inputCls, useFormError, useSubmitState } from "@/components/ui";
+import { BackButton, Field, FormAlert, PasswordInput, PrimaryArrowButton, inputCls, useFormError, useSubmitState } from "@/components/ui";
 import { IconInfo } from "@/components/Icons";
 
 export default function Login() {
@@ -35,7 +35,9 @@ export default function Login() {
       bio: "React, Tailwind and Figma.",
       commitment_hours_per_week: 10,
       commitment_goal: "finalist",
-      contact: "@asep.a",
+      whatsapp: "081234567890",
+      instagram: "asep.a",
+      password,
       data_consent: true,
       });
     });
@@ -53,10 +55,10 @@ export default function Login() {
       </div>
       <form onSubmit={submit} noValidate onInput={clear} className="flex flex-col gap-4 flex-1">
         <Field label="Email">
-          <input type="email" name="email" aria-invalid={invalid("email")} autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@student.uinsgd.ac.id" className={inputCls} />
+          <input type="email" name="email" maxLength={80} aria-invalid={invalid("email")} autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@student.uinsgd.ac.id" className={inputCls} />
         </Field>
         <Field label="Password">
-          <input type="password" name="password" aria-invalid={invalid("password")} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
+          <PasswordInput name="password" invalid={!!invalid("password")} value={password} onChange={setPassword} />
         </Field>
         <FormAlert message={error} nonce={nonce} />
         <div className="bg-card rounded-2xl p-3.5 flex gap-2.5 items-start">

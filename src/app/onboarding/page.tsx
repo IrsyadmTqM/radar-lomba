@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { DEFAULT_CAMPUS, GOAL_OPTIONS, SKILLS, type Goal } from "@/lib/types";
-import { Avatar, Field, FormAlert, PrimaryArrowButton, TogglePill, avatarSrc, inputCls, textareaCls, useFormError, useSubmitState } from "@/components/ui";
+import { GOAL_OPTIONS, MAX, SKILLS, type Goal } from "@/lib/types";
+import { cleanHandle, isValidInstagram, isValidLinkedin, isValidWhatsapp } from "@/lib/contacts";
+import { Avatar, Field, FormAlert, PasswordInput, PrimaryArrowButton, TogglePill, avatarSrc, inputCls, textareaCls, useFormError, useSubmitState } from "@/components/ui";
 import { IconBack, IconCheck } from "@/components/Icons";
 
 export default function Onboarding() {
@@ -18,16 +19,18 @@ export default function Onboarding() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [avatar, setAvatar] = useState(2);
+  const [avatar, setAvatar] = useState(1);
   const [name, setName] = useState("");
   const [major, setMajor] = useState("");
-  const [campus, setCampus] = useState(DEFAULT_CAMPUS);
+  const [campus, setCampus] = useState("");
   const [year, setYear] = useState(2023);
   const [skills, setSkills] = useState<string[]>([]);
   const [bio, setBio] = useState("");
   const [hours, setHours] = useState(8);
   const [goal, setGoal] = useState<Goal>("finalist");
-  const [contact, setContact] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [linkedin, setLinkedin] = useState("");
   const [consent, setConsent] = useState(false);
 
   function go(to: number) {
@@ -47,10 +50,14 @@ export default function Onboarding() {
     if (step === 2 && name.trim().length < 2) return setError("Tell us your name.", "name");
     if (step === 3) {
       if (!skills.length) return setError("Pick at least one role.", "roles");
+      if (!campus.trim()) return setError("Add your campus.", "campus");
       if (!major.trim()) return setError("Add your major.", "major");
     }
     if (step === 4) {
-      if (!contact.trim()) return setError("Add a WhatsApp number or Instagram handle. Only teammates see it.", "contact");
+      if (!whatsapp.trim()) return setError("Add your WhatsApp number. Only teammates see it.", "whatsapp");
+      if (!isValidWhatsapp(whatsapp)) return setError("Use a WhatsApp number like 0812xxxx or +62812xxxx.", "whatsapp");
+      if (!isValidInstagram(instagram)) return setError("Instagram handle can only use letters, numbers, dots and underscores.", "instagram");
+      if (!isValidLinkedin(linkedin)) return setError("Paste your LinkedIn profile link or username.", "linkedin");
       if (!consent) return setError("Tick the consent box so teams can find you.", "consent");
       clear();
       const ok = await submit.run(() => {
@@ -58,13 +65,16 @@ export default function Onboarding() {
         full_name: name.trim(),
         avatar_id: avatar,
         major: major.trim(),
-        campus,
+        campus: campus.trim(),
         entry_year: year,
         skills,
         bio: bio.trim(),
         commitment_hours_per_week: hours,
         commitment_goal: goal,
-        contact: contact.trim(),
+        whatsapp: whatsapp.trim(),
+        instagram: instagram.trim() ? cleanHandle(instagram) : undefined,
+        linkedin: linkedin.trim() || undefined,
+        password,
         data_consent: consent,
         email: email.trim(),
         });
@@ -112,13 +122,13 @@ export default function Onboarding() {
             <p className="m-0 text-[15px] leading-normal text-muted">Use your campus email. Preview build: email confirmation is skipped.</p>
           </div>
           <Field label="Email">
-            <input name="email" aria-invalid={invalid("email")} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@student.uinsgd.ac.id" autoComplete="email" className={inputCls} />
+            <input name="email" aria-invalid={invalid("email")} type="email" maxLength={MAX.email} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@student.uinsgd.ac.id" autoComplete="email" className={inputCls} />
           </Field>
           <Field label="Password" hint="At least 6 characters.">
-            <input name="password" aria-invalid={invalid("password")} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" className={inputCls} />
+            <PasswordInput name="password" invalid={!!invalid("password")} value={password} onChange={setPassword} autoComplete="new-password" />
           </Field>
           <Field label="Confirm password">
-            <input name="confirm" aria-invalid={invalid("confirm")} type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" className={inputCls} />
+            <PasswordInput name="confirm" invalid={!!invalid("confirm")} value={confirm} onChange={setConfirm} autoComplete="new-password" />
           </Field>
         </>
       )}
@@ -156,7 +166,7 @@ export default function Onboarding() {
             })}
           </div>
           <Field label="Full name">
-            <input name="name" aria-invalid={invalid("name")} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Aisyah Salsabila" autoComplete="name" className={inputCls} />
+            <input name="name" aria-invalid={invalid("name")} maxLength={MAX.name} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Aisyah Salsabila" autoComplete="name" className={inputCls} />
           </Field>
         </>
       )}
@@ -195,18 +205,18 @@ export default function Onboarding() {
           </div>
 
           <Field label="Campus">
-            <input value={campus} onChange={(e) => setCampus(e.target.value)} className={inputCls} />
+            <input name="campus" aria-invalid={invalid("campus")} value={campus} maxLength={MAX.campus} onChange={(e) => setCampus(e.target.value)} placeholder="e.g. UIN Sunan Gunung Djati Bandung" className={inputCls} />
           </Field>
           <div className="grid grid-cols-[1fr_96px] gap-3">
             <Field label="Major">
-            <input name="major" aria-invalid={invalid("major")} value={major} onChange={(e) => setMajor(e.target.value)} placeholder="e.g. Informatics" className={inputCls} />
+            <input name="major" aria-invalid={invalid("major")} maxLength={MAX.major} value={major} onChange={(e) => setMajor(e.target.value)} placeholder="e.g. Informatics" className={inputCls} />
           </Field>
             <Field label="Entry year">
               <input type="number" min={2018} max={2026} value={year} onChange={(e) => setYear(Number(e.target.value))} className={inputCls} />
             </Field>
           </div>
           <Field label="Short bio" hint={`${bio.length}/160`}>
-            <textarea value={bio} maxLength={160} onChange={(e) => setBio(e.target.value)} placeholder="Tools you use, projects you built." className={textareaCls} />
+            <textarea value={bio} maxLength={MAX.bio} onChange={(e) => setBio(e.target.value)} placeholder="Tools you use, projects you built." className={textareaCls} />
           </Field>
         </>
       )}
@@ -246,8 +256,14 @@ export default function Onboarding() {
               );
             })}
           </div>
-          <Field label="Contact (WhatsApp or Instagram)" hint="Hidden until you join a team.">
-            <input name="contact" aria-invalid={invalid("contact")} value={contact} onChange={(e) => setContact(e.target.value)} placeholder="@yourhandle or 08xx" className={inputCls} />
+          <Field label="WhatsApp number" hint="Required. Hidden until you join a team.">
+            <input name="whatsapp" aria-invalid={invalid("whatsapp")} type="tel" inputMode="tel" maxLength={MAX.whatsapp} value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="e.g. 081234567890" autoComplete="tel" className={inputCls} />
+          </Field>
+          <Field label="Instagram (optional)">
+            <input name="instagram" aria-invalid={invalid("instagram")} maxLength={MAX.instagram} value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="e.g. @yourhandle" className={inputCls} />
+          </Field>
+          <Field label="LinkedIn (optional)">
+            <input name="linkedin" aria-invalid={invalid("linkedin")} maxLength={MAX.linkedin} value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="linkedin.com/in/yourname or username" className={inputCls} />
           </Field>
           <label className={`flex gap-3 items-start bg-card rounded-2xl p-3.5 cursor-pointer transition-shadow duration-200 ${invalid("consent") ? "shadow-[0_0_0_2px_var(--color-danger)]" : ""}`}>
             <input type="checkbox" name="consent" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#1E1E1E] shrink-0" />

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IconBack, IconCheck, IconDash } from "./Icons";
+import { IconBack, IconCheck, IconClose, IconDash, IconEye, IconEyeOff, IconTrophy, IconUser } from "./Icons";
+import type { ContactLink } from "@/lib/contacts";
 
 export function avatarSrc(id: number) {
   return `/avatars/av${String(id).padStart(2, "0")}.svg`;
@@ -280,18 +281,116 @@ export function ConfirmModal({ title, body, confirmLabel, onConfirm, onCancel, d
   );
 }
 
-/** Small tag list for competition rewards. */
-export function RewardTags({ rewards, max }: { rewards: string[]; max?: number }) {
+/**
+ * Reward tags carry a trophy and a solid fill so they never read like the
+ * plain info tags (category, team size). `tone="lime"` for dark backgrounds.
+ */
+export function RewardTags({ rewards, max, tone = "ink" }: { rewards: string[]; max?: number; tone?: "ink" | "lime" }) {
   const list = max ? rewards.slice(0, max) : rewards;
+  const cls = tone === "lime" ? "bg-lime text-ink" : "bg-ink text-lime";
   return (
     <>
       {list.map((r) => (
-        <span key={r} className="bg-card rounded-[10px] px-2.5 py-1.5 text-xs">
-          {r}
+        <span key={r} className={`${cls} rounded-[10px] pl-2 pr-2.5 py-1 text-xs font-semibold inline-flex items-center gap-1 max-w-full`}>
+          <IconTrophy size={12} strokeWidth={2.4} className="shrink-0" />
+          <span className="truncate">{r}</span>
         </span>
       ))}
     </>
   );
+}
+
+/** Marks competitions a student added (not the organizer or an admin). */
+export function StudentLabel() {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-[10px] border border-dashed border-olive text-muted px-2 py-[3px] text-[11px] font-semibold">
+      <IconUser size={11} strokeWidth={2.4} />
+      Added by student
+    </span>
+  );
+}
+
+/** Plain info tag (category, team size, counts). */
+export function InfoTag({ children }: { children: React.ReactNode }) {
+  return <span className="bg-paper rounded-[10px] px-2.5 py-1 text-xs">{children}</span>;
+}
+
+/** Password field with a show / hide toggle on the right. */
+export function PasswordInput({ value, onChange, name, invalid, autoComplete = "current-password", placeholder }: { value: string; onChange: (v: string) => void; name?: string; invalid?: boolean; autoComplete?: string; placeholder?: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        type={show ? "text" : "password"}
+        name={name}
+        aria-invalid={invalid || undefined}
+        value={value}
+        maxLength={64}
+        onChange={(e) => onChange(e.target.value)}
+        autoComplete={autoComplete}
+        placeholder={placeholder}
+        className={`${inputCls} pr-14`}
+      />
+      <button
+        type="button"
+        onClick={() => setShow((s) => !s)}
+        aria-label={show ? "Hide password" : "Show password"}
+        aria-pressed={show}
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center text-muted hover:text-ink"
+      >
+        {show ? <IconEyeOff size={20} /> : <IconEye size={20} />}
+      </button>
+    </div>
+  );
+}
+
+/** Shown when a page points at something that was deleted. */
+export function Gone({ title, body, href, label }: { title: string; body: string; href: string; label: string }) {
+  return (
+    <main className="min-h-dvh px-6 flex flex-col items-center justify-center gap-3 text-center">
+      <span className="w-14 h-14 rounded-2xl bg-sand flex items-center justify-center">
+        <IconClose size={24} />
+      </span>
+      <h1 className="m-0 text-xl font-bold">{title}</h1>
+      <p className="m-0 text-sm text-muted leading-normal max-w-[300px]">{body}</p>
+      <Link href={href} className="mt-2 h-12 px-5 rounded-2xl bg-ink text-white no-underline flex items-center font-semibold text-sm">
+        {label}
+      </Link>
+    </main>
+  );
+}
+
+/** WhatsApp / Instagram / LinkedIn as tappable rows. */
+export function ContactList({ links, compact = false }: { links: ContactLink[]; compact?: boolean }) {
+  if (!links.length) return null;
+  return (
+    <div className={`flex ${compact ? "flex-wrap gap-1.5" : "flex-col gap-2"}`}>
+      {links.map((l) => (
+        <a
+          key={l.kind}
+          href={l.href}
+          target="_blank"
+          rel="noreferrer"
+          className={compact ? "bg-paper rounded-lg px-2 py-1 text-[11px] font-semibold text-ink no-underline" : "bg-card rounded-2xl px-4 py-3 flex justify-between items-center no-underline text-ink"}
+        >
+          {compact ? (
+            `${l.kind}: ${l.label}`
+          ) : (
+            <>
+              <span className="text-sm">{l.kind}</span>
+              <span className="text-sm font-semibold truncate max-w-[60%]">{l.label}</span>
+            </>
+          )}
+        </a>
+      ))}
+    </div>
+  );
+}
+
+/** Shallow "did anything change?" check for edit forms. */
+export function useDirty<T>(current: T, initial: T) {
+  const [base] = useState(() => JSON.stringify(initial));
+  return JSON.stringify(current) !== base;
 }
 
 export const initialsOf = (s: string) =>

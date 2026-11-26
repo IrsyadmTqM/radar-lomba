@@ -6,7 +6,7 @@ import { daysLeft, useStore } from "@/lib/store";
 import { CATEGORIES } from "@/lib/types";
 import { BottomNav } from "@/components/BottomNav";
 import { IconBookmark, IconPlus, IconSearch } from "@/components/Icons";
-import { RewardTags, SectionTitle, initialsOf } from "@/components/ui";
+import { InfoTag, RewardTags, SectionTitle, StudentLabel } from "@/components/ui";
 
 export default function Competitions() {
   const { db, me, now } = useStore();
@@ -82,20 +82,21 @@ export default function Competitions() {
                 {first.c.category} · {first.c.subcategory}
               </span>
               <span className="text-[22px] font-bold leading-tight">{first.c.name}</span>
-              <span className="text-[13px]">by {first.c.student_added ? "a student" : first.c.organizer}</span>
+              {!first.c.student_added && <span className="text-[13px]">by {first.c.organizer}</span>}
             </div>
             <div className="bg-ink text-lime rounded-[14px] px-2.5 py-2 text-center flex flex-col shrink-0">
               <span className="text-[22px] font-bold leading-none">{daysLeft(first.c.registration_deadline, now)}</span>
               <span className="text-[11px]">days left</span>
             </div>
           </div>
-          <div className="flex gap-2">
-            <span className="bg-card rounded-[10px] px-2.5 py-1.5 text-xs">
+          <div className="flex gap-1.5 flex-wrap items-center">
+            <span className="bg-card rounded-[10px] px-2.5 py-1 text-xs">
               Team {first.c.min_team_size === first.c.max_team_size ? first.c.max_team_size : `${first.c.min_team_size}–${first.c.max_team_size}`}
             </span>
-            <span className="bg-card rounded-[10px] px-2.5 py-1.5 text-xs">
+            <span className="bg-card rounded-[10px] px-2.5 py-1 text-xs">
               {first.open} team{first.open === 1 ? "" : "s"} looking
             </span>
+            {first.c.student_added && <StudentLabel />}
             {first.c.rewards[0] && <RewardTags rewards={first.c.rewards} max={1} />}
           </div>
         </Link>
@@ -104,20 +105,20 @@ export default function Competitions() {
       <div className="flex flex-col gap-2.5">
         {rest.map(({ c, open }) => (
           <Link key={c.id} href={`/competitions/${c.id}`} className="no-underline text-ink bg-card rounded-[20px] p-3.5 flex items-center gap-3">
-            {c.poster ? (
+            {c.poster && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={c.poster} alt="" className="w-11 h-11 rounded-[14px] object-cover shrink-0" />
-            ) : (
-              <div className="w-11 h-11 rounded-[14px] bg-sand flex items-center justify-center font-bold shrink-0">{initialsOf(c.name)}</div>
+              <img src={c.poster} alt="" className="w-11 h-11 rounded-[14px] object-cover shrink-0 self-start" />
             )}
-            <div className="flex-1 flex flex-col gap-0.5 min-w-0">
+            <div className="flex-1 flex flex-col gap-1.5 min-w-0">
               <span className="font-semibold text-[15px] truncate">{c.name}</span>
-              <span className="text-xs text-muted">
-                {c.category} · Team {c.min_team_size === c.max_team_size ? c.max_team_size : `${c.min_team_size}–${c.max_team_size}`}
-                {c.student_added ? " · Added by a student" : c.rewards[0] ? ` · ${c.rewards[0]}` : ""}
-              </span>
+              <div className="flex gap-1.5 flex-wrap items-center">
+                <InfoTag>{c.category}</InfoTag>
+                <InfoTag>Team {c.min_team_size === c.max_team_size ? c.max_team_size : `${c.min_team_size}–${c.max_team_size}`}</InfoTag>
+                {c.student_added && <StudentLabel />}
+                {c.rewards[0] && <RewardTags rewards={c.rewards} max={1} />}
+              </div>
             </div>
-            <span className="text-xs bg-paper rounded-lg px-2 py-1.5 shrink-0">{daysLeft(c.registration_deadline, now)} d</span>
+            <span className="text-xs bg-paper rounded-lg px-2 py-1.5 shrink-0 self-start">{daysLeft(c.registration_deadline, now)} d</span>
           </Link>
         ))}
       </div>
