@@ -9,6 +9,10 @@ import { GOAL_LABEL } from "./types";
  *   20%  free hours per week >= the team's minimum
  *   20%  same goal as the team
  *
+ * Deadlines:
+ *   - Once a competition's registration deadline passes, nobody can create,
+ *     join or be invited to a team for it, and its teams stop using hours.
+ *
  * Multi-competition rules:
  *   - A person can join teams in several competitions,
  *     but only one team per competition.
@@ -23,8 +27,19 @@ export function teamsOf(db: DB, profileId: string): TeamRequest[] {
   return db.requests.filter((r) => ids.has(r.id));
 }
 
+/** True once a competition's registration deadline has passed. */
+export function isClosed(db: DB, competitionId: string, at: number = Date.now()): boolean {
+  const c = db.competitions.find((x) => x.id === competitionId);
+  return !!c && new Date(c.registration_deadline).getTime() < at;
+}
+
+/** Teams that still count against a person's hours: their competition is still open. */
+export function activeTeamsOf(db: DB, profileId: string, at: number = Date.now()): TeamRequest[] {
+  return teamsOf(db, profileId).filter((r) => !isClosed(db, r.competition_id, at));
+}
+
 export function usedHours(db: DB, profileId: string, exceptRequestId?: string): number {
-  return teamsOf(db, profileId)
+  return activeTeamsOf(db, profileId)
     .filter((r) => r.id !== exceptRequestId)
     .reduce((sum, r) => sum + r.min_hours_per_week, 0);
 }
@@ -53,7 +68,7 @@ export type Match = {
 export function explain(db: DB, request: TeamRequest, profile: Profile): Match {
   const matchedRoles = request.needed_roles.filter((r) => profile.skills.includes(r));
   const free = freeHours(db, profile.id);
-  const otherTeams = teamsOf(db, profile.id).length;
+  const otherTeams = activeTeamsOf(db, profile.id).length;
   const roleShare = request.needed_roles.length ? matchedRoles.length / request.needed_roles.length : 0;
   const hoursOk = free >= request.min_hours_per_week;
   const goalOk = profile.commitment_goal === request.goal;
@@ -105,6 +120,7 @@ export function candidatesFor(db: DB, request: TeamRequest): Match[] {
 /** Why a person cannot join this team right now, or null if they can. */
 export function joinBlocker(db: DB, request: TeamRequest, profileId: string): string | null {
   if (request.status !== "open") return "This team is not taking new members.";
+  if (isClosed(db, request.competition_id)) return "Registration for this competition has closed.";
   if (request.kicked?.includes(profileId)) return "The team owner removed you from this team.";
   const existing = teamInCompetition(db, profileId, request.competition_id);
   if (existing) return `You're already in ${existing.title} for this competition. One team per competition.`;
