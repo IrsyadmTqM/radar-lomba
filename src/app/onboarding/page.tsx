@@ -155,13 +155,14 @@ export default function Onboarding() {
               ))}
             </div>
           </div>
-          <Field label="Major">
-            <input value={major} onChange={(e) => setMajor(e.target.value)} placeholder="e.g. Informatics" className={inputCls} />
+
+          <Field label="Campus">
+            <input value={campus} onChange={(e) => setCampus(e.target.value)} className={inputCls} />
           </Field>
           <div className="grid grid-cols-[1fr_96px] gap-3">
-            <Field label="Campus">
-              <input value={campus} onChange={(e) => setCampus(e.target.value)} className={inputCls} />
-            </Field>
+            <Field label="Major">
+            <input value={major} onChange={(e) => setMajor(e.target.value)} placeholder="e.g. Informatics" className={inputCls} />
+          </Field>
             <Field label="Entry year">
               <input type="number" min={2018} max={2026} value={year} onChange={(e) => setYear(Number(e.target.value))} className={inputCls} />
             </Field>
