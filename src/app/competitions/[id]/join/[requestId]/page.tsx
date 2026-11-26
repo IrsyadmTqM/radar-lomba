@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { freeHours } from "@/lib/matching";
-import { TeamIcon, TogglePill } from "@/components/ui";
+import { TeamIcon, TogglePill, FormAlert, useFormError } from "@/components/ui";
 import { IconClose, IconInfo, IconSend } from "@/components/Icons";
 
 export default function JoinRequest() {
@@ -18,7 +18,7 @@ export default function JoinRequest() {
   const initialRoles = r && me ? r.needed_roles.filter((x) => me.skills.includes(x)) : [];
   const [roles, setRoles] = useState<string[]>(initialRoles.length ? initialRoles : r ? [r.needed_roles[0]] : []);
   const [msg, setMsg] = useState("");
-  const [error, setError] = useState("");
+  const { error, nonce, setError, clear } = useFormError();
 
   if (!c || !r || !me) return null;
 
@@ -35,7 +35,7 @@ export default function JoinRequest() {
   }
 
   return (
-    <main className="min-h-dvh bg-ink relative">
+    <main className="min-h-dvh bg-ink relative" onInput={clear}>
       <div className="px-5 pt-14 h-[150px] flex flex-col gap-1 text-white opacity-50">
         <span className="text-xs">
           {c.category} · {c.subcategory}
@@ -107,11 +107,7 @@ export default function JoinRequest() {
           </span>
         </div>
 
-        {error && (
-          <p role="alert" className="m-0 text-sm font-semibold bg-lime rounded-xl px-3 py-2">
-            {error}
-          </p>
-        )}
+        <FormAlert message={error} nonce={nonce} />
 
         <button type="button" onClick={submit} className="mt-auto h-14 rounded-[18px] bg-lime flex items-center justify-center gap-2 font-bold text-base text-ink">
           <IconSend size={18} color="#1E1E1E" />

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { freeHours } from "@/lib/matching";
 import { GOAL_OPTIONS, SKILLS, type Goal } from "@/lib/types";
-import { BackButton, Field, PrimaryArrowButton, TogglePill, inputCls, teamIconSrc } from "@/components/ui";
+import { BackButton, Field, PrimaryArrowButton, TogglePill, inputCls, teamIconSrc, FormAlert, useFormError, textareaCls } from "@/components/ui";
 import { IconCheck } from "@/components/Icons";
 
 export default function NewTeam() {
@@ -21,7 +21,7 @@ export default function NewTeam() {
   const [minHours, setMinHours] = useState(8);
   const [goal, setGoal] = useState<Goal>(me?.commitment_goal ?? "finalist");
   const [desc, setDesc] = useState("");
-  const [error, setError] = useState("");
+  const { error, nonce, setError, clear } = useFormError();
 
   if (!c || !me) return null;
   const free = freeHours(db, me.id);
@@ -50,7 +50,7 @@ export default function NewTeam() {
   }
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-8 flex flex-col gap-5">
+    <main className="min-h-dvh px-5 pt-14 pb-8 flex flex-col gap-5" onInput={clear}>
       <div className="flex items-center gap-3">
         <BackButton href={`/competitions/${c.id}`} />
         <div className="flex flex-col">
@@ -130,14 +130,10 @@ export default function NewTeam() {
       </div>
 
       <Field label="What are you building? (optional)">
-        <textarea value={desc} maxLength={200} onChange={(e) => setDesc(e.target.value)} placeholder="One or two lines about your idea." className="h-24 resize-none rounded-2xl bg-card p-3.5 text-[15px] leading-normal outline-none focus:ring-2 focus:ring-ink" />
+        <textarea value={desc} maxLength={200} onChange={(e) => setDesc(e.target.value)} placeholder="One or two lines about your idea." className={textareaCls} />
       </Field>
 
-      {error && (
-        <p role="alert" className="m-0 text-sm font-semibold bg-lime rounded-xl px-3 py-2">
-          {error}
-        </p>
-      )}
+      <FormAlert message={error} nonce={nonce} />
 
       <PrimaryArrowButton onClick={submit}>Create team and find people</PrimaryArrowButton>
     </main>

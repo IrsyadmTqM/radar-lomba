@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { PORTFOLIO_TYPES, type PortfolioItem } from "@/lib/types";
-import { BackButton, Field, PrimaryArrowButton, inputCls } from "@/components/ui";
+import { BackButton, Field, PrimaryArrowButton, inputCls, FormAlert, useFormError } from "@/components/ui";
 
 export default function NewPortfolio() {
   const { addPortfolio, showToast } = useStore();
@@ -13,10 +13,10 @@ export default function NewPortfolio() {
   const [title, setTitle] = useState("");
   const [year, setYear] = useState(2026);
   const [link, setLink] = useState("");
-  const [error, setError] = useState("");
+  const { error, nonce, setError, clear } = useFormError();
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-8 flex flex-col gap-5">
+    <main className="min-h-dvh px-5 pt-14 pb-8 flex flex-col gap-5" onInput={clear}>
       <div className="flex items-center gap-3">
         <BackButton href="/profile" />
         <h1 className="m-0 text-[22px] font-bold">Add to portfolio</h1>
@@ -37,11 +37,7 @@ export default function NewPortfolio() {
       <Field label="Proof link" hint="Certificate, repo, article or any page that shows it.">
         <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://" inputMode="url" className={inputCls} />
       </Field>
-      {error && (
-        <p role="alert" className="m-0 text-sm font-semibold bg-lime rounded-xl px-3 py-2">
-          {error}
-        </p>
-      )}
+      <FormAlert message={error} nonce={nonce} />
       <div className="mt-auto">
         <PrimaryArrowButton
           onClick={() => {

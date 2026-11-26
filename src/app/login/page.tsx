@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { BackButton, Field, PrimaryArrowButton, inputCls } from "@/components/ui";
+import { BackButton, Field, FormAlert, PrimaryArrowButton, inputCls, useFormError, useSubmitState } from "@/components/ui";
 import { IconInfo } from "@/components/Icons";
 
 export default function Login() {
@@ -13,10 +13,18 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function submit(e: React.FormEvent) {
+  const { error, nonce, setError, clear, invalid } = useFormError();
+  const sending = useSubmitState();
+
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!email.trim()) return setError("Enter your email.", "email");
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setError("That email doesn't look right.", "email");
+    if (password.length < 6) return setError("Password needs at least 6 characters.", "password");
+    clear();
     // Frontend-only build: sign-in opens a ready-made demo account.
-    createProfile({
+    const ok = await sending.run(() => {
+      createProfile({
       full_name: "Asep A.",
       avatar_id: 9,
       major: "Informatics",
@@ -29,7 +37,9 @@ export default function Login() {
       commitment_goal: "finalist",
       contact: "@asep.a",
       data_consent: true,
+      });
     });
+    if (!ok) return;
     showToast("Signed in to the demo account");
     router.push("/competitions");
   }
@@ -41,20 +51,23 @@ export default function Login() {
         <h1 className="m-0 text-[28px] font-extrabold">Welcome back</h1>
         <p className="m-0 text-[15px] text-muted">Sign in with your campus email.</p>
       </div>
-      <form onSubmit={submit} className="flex flex-col gap-4 flex-1">
+      <form onSubmit={submit} noValidate onInput={clear} className="flex flex-col gap-4 flex-1">
         <Field label="Email">
-          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@student.uinsgd.ac.id" className={inputCls} />
+          <input type="email" name="email" aria-invalid={invalid("email")} autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@student.uinsgd.ac.id" className={inputCls} />
         </Field>
         <Field label="Password">
-          <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
+          <input type="password" name="password" aria-invalid={invalid("password")} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
         </Field>
+        <FormAlert message={error} nonce={nonce} />
         <div className="bg-card rounded-2xl p-3.5 flex gap-2.5 items-start">
           <IconInfo size={18} className="shrink-0 mt-px" />
           <span className="text-[13px] leading-[1.45] text-muted">Preview build: any email and password open a demo account. Real sign-in comes with the Supabase backend.</span>
         </div>
         <div className="mt-auto flex flex-col gap-3">
           <Link href="/forgot-password" className="text-center text-sm underline">Forgot password?</Link>
-          <PrimaryArrowButton type="submit">Sign in</PrimaryArrowButton>
+          <PrimaryArrowButton type="submit" state={sending.state} doneLabel="Signed in">
+            Sign in
+          </PrimaryArrowButton>
           <button
             type="button"
             onClick={() => {

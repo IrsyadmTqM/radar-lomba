@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CATEGORIES, type Competition } from "@/lib/types";
 import type { NewCompetition } from "@/lib/store";
-import { Field, PrimaryArrowButton, inputCls } from "@/components/ui";
+import { Field, PrimaryArrowButton, inputCls, FormAlert, useFormError, textareaCls } from "@/components/ui";
 import { IconClose } from "@/components/Icons";
 
 /** Shared form for students adding or editing a competition. */
@@ -20,7 +20,7 @@ export function CompetitionForm({ initial, submitLabel, onSubmit }: { initial?: 
   const [rewards, setRewards] = useState<string[]>(initial?.rewards ?? []);
   const [draft, setDraft] = useState("");
   const [poster, setPoster] = useState<string | undefined>(initial?.poster);
-  const [error, setError] = useState("");
+  const { error, nonce, setError, clear } = useFormError();
 
   const addReward = () => {
     const t = draft.trim();
@@ -55,7 +55,7 @@ export function CompetitionForm({ initial, submitLabel, onSubmit }: { initial?: 
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4" onInput={clear}>
       <Field label="Competition name">
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Robotics Open Cup" className={inputCls} />
       </Field>
@@ -122,7 +122,7 @@ export function CompetitionForm({ initial, submitLabel, onSubmit }: { initial?: 
         )}
       </div>
       <Field label="Rules (optional)">
-        <textarea value={rules} maxLength={300} onChange={(e) => setRules(e.target.value)} className="h-24 resize-none rounded-2xl bg-card p-3.5 text-[15px] leading-normal outline-none focus:ring-2 focus:ring-ink" />
+        <textarea value={rules} maxLength={300} onChange={(e) => setRules(e.target.value)} className={textareaCls} />
       </Field>
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-semibold">Poster (optional)</span>
@@ -132,11 +132,7 @@ export function CompetitionForm({ initial, submitLabel, onSubmit }: { initial?: 
         )}
         <input type="file" accept="image/*" onChange={(e) => readPoster(e.target.files?.[0])} className="text-sm" aria-label="Upload poster" />
       </div>
-      {error && (
-        <p role="alert" className="m-0 text-sm font-semibold bg-lime rounded-xl px-3 py-2">
-          {error}
-        </p>
-      )}
+      <FormAlert message={error} nonce={nonce} />
       <PrimaryArrowButton onClick={submit}>{submitLabel}</PrimaryArrowButton>
     </div>
   );
