@@ -132,7 +132,7 @@ export default function Onboarding() {
             })}
           </div>
           <Field label="Full name">
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Nadia Salsabila" autoComplete="name" className={inputCls} />
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Aisyah Salsabila" autoComplete="name" className={inputCls} />
           </Field>
         </>
       )}
