@@ -11,7 +11,7 @@ import { freeHours, joinBlocker, teamInCompetition } from "./matching";
  * call later (insert / update on the table with the same name).
  */
 
-const KEY = "radar-lomba-demo-v2";
+const KEY = "radar-lomba-demo-v3";
 const DEMO_DELAY_MS = 4000;
 
 const uid = (p: string) => `${p}-${Math.random().toString(36).slice(2, 9)}`;
@@ -181,7 +181,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const raw = localStorage.getItem(KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as DB;
-        if (parsed.version === 2) setDb(parsed);
+        if (parsed.version === 3) setDb(parsed);
       }
     } catch {
       /* storage blocked: run on fresh seed */
@@ -495,7 +495,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           full_name: "Campus Admin",
           avatar_id: 1,
           major: "",
-          faculty: "",
+          campus: "",
           entry_year: 2020,
           skills: [],
           bio: "",

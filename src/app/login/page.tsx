@@ -20,7 +20,7 @@ export default function Login() {
       full_name: "Asep A.",
       avatar_id: 9,
       major: "Informatics",
-      faculty: "Science and Technology",
+      campus: "UIN Sunan Gunung Djati Bandung",
       entry_year: 2023,
       skills: ["Software dev", "Design"],
       email: email.trim(),

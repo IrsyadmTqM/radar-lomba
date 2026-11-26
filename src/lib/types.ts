@@ -41,7 +41,7 @@ export type Profile = {
   full_name: string;
   avatar_id: number; // 1–10, preset illustration
   major: string;
-  faculty: string;
+  campus: string;
   entry_year: number;
   skills: string[];
   bio: string;
@@ -135,14 +135,4 @@ export type DB = {
   saved: string[]; // saved competition ids
 };
 
-export const FACULTIES = [
-  "Science and Technology",
-  "Economics and Islamic Business",
-  "Social and Political Sciences",
-  "Adab and Humanities",
-  "Dakwah and Communication",
-  "Tarbiyah and Teacher Training",
-  "Sharia and Law",
-  "Ushuluddin",
-  "Psychology",
-];
+export const DEFAULT_CAMPUS = "UIN Sunan Gunung Djati Bandung";

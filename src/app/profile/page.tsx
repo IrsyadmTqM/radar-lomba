@@ -40,7 +40,7 @@ export default function Profile() {
           <span className="text-[13px] text-muted">
             {me.major} · {me.entry_year}
           </span>
-          <span className="text-[13px] text-muted truncate">{me.faculty}</span>
+          <span className="text-[13px] text-muted truncate">{me.campus}</span>
         </div>
       </div>
 

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { FACULTIES, GOAL_OPTIONS, SKILLS, type Goal } from "@/lib/types";
+import { DEFAULT_CAMPUS, GOAL_OPTIONS, SKILLS, type Goal } from "@/lib/types";
 import { Avatar, Field, PrimaryArrowButton, TogglePill, avatarSrc, inputCls } from "@/components/ui";
 import { IconBack, IconCheck } from "@/components/Icons";
 
@@ -19,7 +19,7 @@ export default function Onboarding() {
   const [avatar, setAvatar] = useState(2);
   const [name, setName] = useState("");
   const [major, setMajor] = useState("");
-  const [faculty, setFaculty] = useState(FACULTIES[0]);
+  const [campus, setCampus] = useState(DEFAULT_CAMPUS);
   const [year, setYear] = useState(2023);
   const [skills, setSkills] = useState<string[]>([]);
   const [bio, setBio] = useState("");
@@ -47,7 +47,7 @@ export default function Onboarding() {
         full_name: name.trim(),
         avatar_id: avatar,
         major: major.trim(),
-        faculty,
+        campus,
         entry_year: year,
         skills,
         bio: bio.trim(),
@@ -158,13 +158,9 @@ export default function Onboarding() {
           <Field label="Major">
             <input value={major} onChange={(e) => setMajor(e.target.value)} placeholder="e.g. Informatics" className={inputCls} />
           </Field>
-          <div className="grid grid-cols-[1fr_110px] gap-3">
-            <Field label="Faculty">
-              <select value={faculty} onChange={(e) => setFaculty(e.target.value)} className={`${inputCls} appearance-none`}>
-                {FACULTIES.map((f) => (
-                  <option key={f}>{f}</option>
-                ))}
-              </select>
+          <div className="grid grid-cols-[1fr_96px] gap-3">
+            <Field label="Campus">
+              <input value={campus} onChange={(e) => setCampus(e.target.value)} className={inputCls} />
             </Field>
             <Field label="Entry year">
               <input type="number" min={2018} max={2026} value={year} onChange={(e) => setYear(Number(e.target.value))} className={inputCls} />

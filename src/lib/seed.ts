@@ -19,16 +19,16 @@ export function makeSeed(): DB {
   const now = Date.now();
 
   const profiles: Profile[] = [
-    demo({ id: "p-andi", full_name: "Andi R.", avatar_id: 1, major: "Informatics", faculty: "Science and Technology", entry_year: 2022, skills: ["Software dev"], bio: "Laravel and Postgres. Built the faculty event site.", commitment_hours_per_week: 12, commitment_goal: "finalist", contact: "@andi.dev" }),
-    demo({ id: "p-nadia", full_name: "Nadia S.", avatar_id: 2, major: "Informatics", faculty: "Science and Technology", entry_year: 2023, skills: ["Software dev", "Design"], bio: "React, Tailwind and Figma. Likes clean dashboards.", commitment_hours_per_week: 10, commitment_goal: "finalist", contact: "@nadia.ui" }),
-    demo({ id: "p-rafi", full_name: "Rafi M.", avatar_id: 3, major: "Mathematics", faculty: "Science and Technology", entry_year: 2023, skills: ["Data & stats", "Presentation"], bio: "Python, charts and the final pitch deck.", commitment_hours_per_week: 12, commitment_goal: "finalist", contact: "@rafi.m" }),
-    demo({ id: "p-sinta", full_name: "Sinta L.", avatar_id: 4, major: "Management", faculty: "Economics and Islamic Business", entry_year: 2022, skills: ["Design", "Business & finance"], bio: "Product thinking and user research.", commitment_hours_per_week: 9, commitment_goal: "win", contact: "@sinta.lr" }),
-    demo({ id: "p-bima", full_name: "Bima P.", avatar_id: 5, major: "Informatics", faculty: "Science and Technology", entry_year: 2021, skills: ["Software dev", "Data & stats"], bio: "Two hackathon finals so far.", commitment_hours_per_week: 14, commitment_goal: "win", contact: "@bima.p" }),
-    demo({ id: "p-laras", full_name: "Laras A.", avatar_id: 6, major: "Communication", faculty: "Social and Political Sciences", entry_year: 2023, skills: ["Presentation", "Writing", "Video & content"], bio: "Scripts and edits pitch videos.", commitment_hours_per_week: 8, commitment_goal: "just_experience", contact: "@laras.a" }),
-    demo({ id: "p-yoga", full_name: "Yoga K.", avatar_id: 7, major: "Physics", faculty: "Science and Technology", entry_year: 2022, skills: ["Data & stats"], bio: "Sensor data and simple models.", commitment_hours_per_week: 10, commitment_goal: "finalist", contact: "@yoga.k" }),
-    demo({ id: "p-dewi", full_name: "Dewi N.", avatar_id: 8, major: "Islamic Economics", faculty: "Economics and Islamic Business", entry_year: 2023, skills: ["Business & finance", "Writing"], bio: "Business model canvas and financials.", commitment_hours_per_week: 6, commitment_goal: "just_experience", contact: "@dewi.n" }),
-    demo({ id: "p-fikri", full_name: "Fikri H.", avatar_id: 9, major: "Informatics", faculty: "Science and Technology", entry_year: 2024, skills: ["Software dev"], bio: "Flutter and React Native.", commitment_hours_per_week: 15, commitment_goal: "win", contact: "@fikri.h" }),
-    demo({ id: "p-salma", full_name: "Salma Z.", avatar_id: 10, major: "English Literature", faculty: "Adab and Humanities", entry_year: 2022, skills: ["Writing", "Presentation"], bio: "Debate team. Writes clear proposals.", commitment_hours_per_week: 14, commitment_goal: "finalist", contact: "@salma.z" }),
+    demo({ id: "p-andi", full_name: "Andi R.", avatar_id: 1, major: "Informatics", campus: "UIN Sunan Gunung Djati Bandung", entry_year: 2022, skills: ["Software dev"], bio: "Laravel and Postgres. Built the campus event site.", commitment_hours_per_week: 12, commitment_goal: "finalist", contact: "@andi.dev" }),
+    demo({ id: "p-nadia", full_name: "Nadia S.", avatar_id: 2, major: "Informatics", campus: "UIN Sunan Gunung Djati Bandung", entry_year: 2023, skills: ["Software dev", "Design"], bio: "React, Tailwind and Figma. Likes clean dashboards.", commitment_hours_per_week: 10, commitment_goal: "finalist", contact: "@nadia.ui" }),
+    demo({ id: "p-rafi", full_name: "Rafi M.", avatar_id: 3, major: "Mathematics", campus: "UIN Sunan Gunung Djati Bandung", entry_year: 2023, skills: ["Data & stats", "Presentation"], bio: "Python, charts and the final pitch deck.", commitment_hours_per_week: 12, commitment_goal: "finalist", contact: "@rafi.m" }),
+    demo({ id: "p-sinta", full_name: "Sinta L.", avatar_id: 4, major: "Management", campus: "UIN Sunan Gunung Djati Bandung", entry_year: 2022, skills: ["Design", "Business & finance"], bio: "Product thinking and user research.", commitment_hours_per_week: 9, commitment_goal: "win", contact: "@sinta.lr" }),
+    demo({ id: "p-bima", full_name: "Bima P.", avatar_id: 5, major: "Informatics", campus: "UIN Sunan Gunung Djati Bandung", entry_year: 2021, skills: ["Software dev", "Data & stats"], bio: "Two hackathon finals so far.", commitment_hours_per_week: 14, commitment_goal: "win", contact: "@bima.p" }),
+    demo({ id: "p-laras", full_name: "Laras A.", avatar_id: 6, major: "Communication", campus: "UIN Sunan Gunung Djati Bandung", entry_year: 2023, skills: ["Presentation", "Writing", "Video & content"], bio: "Scripts and edits pitch videos.", commitment_hours_per_week: 8, commitment_goal: "just_experience", contact: "@laras.a" }),
+    demo({ id: "p-yoga", full_name: "Yoga K.", avatar_id: 7, major: "Physics", campus: "UIN Sunan Gunung Djati Bandung", entry_year: 2022, skills: ["Data & stats"], bio: "Sensor data and simple models.", commitment_hours_per_week: 10, commitment_goal: "finalist", contact: "@yoga.k" }),
+    demo({ id: "p-dewi", full_name: "Dewi N.", avatar_id: 8, major: "Islamic Economics", campus: "UIN Sunan Gunung Djati Bandung", entry_year: 2023, skills: ["Business & finance", "Writing"], bio: "Business model canvas and financials.", commitment_hours_per_week: 6, commitment_goal: "just_experience", contact: "@dewi.n" }),
+    demo({ id: "p-fikri", full_name: "Fikri H.", avatar_id: 9, major: "Informatics", campus: "UIN Sunan Gunung Djati Bandung", entry_year: 2024, skills: ["Software dev"], bio: "Flutter and React Native.", commitment_hours_per_week: 15, commitment_goal: "win", contact: "@fikri.h" }),
+    demo({ id: "p-salma", full_name: "Salma Z.", avatar_id: 10, major: "English Literature", campus: "UIN Sunan Gunung Djati Bandung", entry_year: 2022, skills: ["Writing", "Presentation"], bio: "Debate team. Writes clear proposals.", commitment_hours_per_week: 14, commitment_goal: "finalist", contact: "@salma.z" }),
   ];
 
   const competitions: Competition[] = [
@@ -70,7 +70,7 @@ export function makeSeed(): DB {
   ];
 
   return {
-    version: 2,
+    version: 3,
     me: null,
     profiles,
     competitions,

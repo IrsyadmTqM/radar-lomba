@@ -32,7 +32,7 @@ function Body() {
           <span className="text-[13px] text-muted">
             {p.major} · {p.entry_year}
           </span>
-          <span className="text-[13px] text-muted truncate">{p.faculty}</span>
+          <span className="text-[13px] text-muted truncate">{p.campus}</span>
         </div>
       </div>
       {p.bio && <p className="m-0 text-sm leading-normal">{p.bio}</p>}
