@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/logo/radar-lomba-logo.png" alt="Radar Lomba" width="220">
+  <img src="docs/logo-white.png" alt="Radar Lomba" width="220">
 </p>
 
 <p align="center"><b>Find a competition. Build the right team.</b></p>
