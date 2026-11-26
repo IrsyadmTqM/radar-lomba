@@ -6,8 +6,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { BottomNav } from "@/components/BottomNav";
 import { joinBlocker } from "@/lib/matching";
-import { contactLinks } from "@/lib/contacts";
-import { Avatar, BackButton, ConfirmModal, ContactList, DemoTag, Gone, SectionTitle, TeamIcon } from "@/components/ui";
+import { Avatar, BackButton, ConfirmModal, DemoTag, Gone, SectionTitle, TeamIcon } from "@/components/ui";
 import { IconBack, IconChat, IconExternal, IconPlus, IconSearch } from "@/components/Icons";
 
 export default function TeamPage() {
@@ -101,7 +100,7 @@ export default function TeamPage() {
         </Link>
       )}
 
-      <SectionTitle title="Members" aside={isMember ? "Contacts visible to members only" : "Join to see contacts"} />
+      <SectionTitle title="Members" />
 
       <div className="bg-card rounded-[22px] px-3.5 py-1.5 flex flex-col">
         {members.map((m, i) => {
@@ -123,11 +122,6 @@ export default function TeamPage() {
                   </div>
                   <IconBack size={16} className="rotate-180 text-muted shrink-0 transition-transform group-hover:translate-x-0.5" />
                 </Link>
-                {isMember && p.id !== me.id && (
-                  <div className="pl-[52px]">
-                    <ContactList links={contactLinks(p)} compact />
-                  </div>
-                )}
               </div>
               {isOwner && p.id !== me.id && (
                 <button
