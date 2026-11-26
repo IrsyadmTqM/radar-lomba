@@ -19,7 +19,8 @@ export function BottomNav() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-none">
-      <div className="mx-auto max-w-[430px] px-5 pb-[max(24px,env(safe-area-inset-bottom))]">
+      {/* Paper fade behind the nav: content scrolling underneath stays hidden. */}
+      <div className="mx-auto max-w-[430px] px-5 pt-8 pb-[max(24px,env(safe-area-inset-bottom))] bg-[linear-gradient(to_bottom,transparent,var(--color-paper)_45%)]">
         <nav aria-label="Main" className="pointer-events-auto h-16 rounded-[22px] bg-ink flex items-center justify-around px-2 shadow-[0_8px_24px_rgba(30,30,30,0.18)]">
           {items.map(({ href, label, Icon }) => {
             const active = path === href || path.startsWith(href + "/");

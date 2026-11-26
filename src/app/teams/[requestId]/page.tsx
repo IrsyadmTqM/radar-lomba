@@ -5,20 +5,21 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { BottomNav } from "@/components/BottomNav";
-import { Avatar, BackButton, ConfirmModal, DemoTag, SectionTitle, TeamIcon, inputCls } from "@/components/ui";
-import { IconChat, IconExternal, IconPlus, IconSearch } from "@/components/Icons";
+import { joinBlocker } from "@/lib/matching";
+import { Avatar, BackButton, ConfirmModal, DemoTag, Gone, SectionTitle, TeamIcon } from "@/components/ui";
+import { IconBack, IconChat, IconExternal, IconPlus, IconSearch } from "@/components/Icons";
 
 export default function TeamPage() {
   const { requestId } = useParams<{ requestId: string }>();
   const router = useRouter();
-  const { db, me, now, setStatus, setGroupLink, leaveTeam, kickMember, showToast } = useStore();
-  const [linkDraft, setLinkDraft] = useState("");
+  const { db, me, now, setStatus, leaveTeam, kickMember, showToast } = useStore();
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [kickId, setKickId] = useState<string | null>(null);
 
   const r = db.requests.find((x) => x.id === requestId);
   const c = r && db.competitions.find((x) => x.id === r.competition_id);
-  if (!r || !c || !me) return null;
+  if (!me) return null;
+  if (!r || !c) return <Gone title="This team no longer exists" body="Everyone left the team, so it was deleted." href="/teams" label="Back to My teams" />;
 
   const members = db.members.filter((m) => m.request_id === r.id).sort((a, b) => (a.profile_id === r.owner_id ? -1 : b.profile_id === r.owner_id ? 1 : a.joined_at - b.joined_at));
   const isMember = members.some((m) => m.profile_id === me.id);
@@ -35,13 +36,9 @@ export default function TeamPage() {
 
   const statusText = r.status === "open" ? "Open" : r.status === "full" ? "Full" : "Complete";
 
-  function saveLink() {
-    const v = linkDraft.trim();
-    if (!/^https?:\/\//.test(v)) return showToast("Paste a full link starting with https://");
-    setGroupLink(r!.id, v);
-    setLinkDraft("");
-    showToast("Group link saved");
-  }
+  const blocker = isMember ? null : joinBlocker(db, r, me.id);
+  const requested = db.invitations.some((i) => i.request_id === r.id && i.from_id === me.id && i.status === "pending");
+  const btn = "flex-1 min-w-[45%] h-11 rounded-[14px] bg-card text-ink no-underline flex items-center justify-center gap-2 font-semibold text-sm";
 
   return (
     <main className="min-h-dvh px-5 pt-14 pb-32 flex flex-col gap-3.5">
@@ -75,23 +72,25 @@ export default function TeamPage() {
             ))}
           </div>
         </div>
-        <div className="flex gap-2">
-          {isMember && r.group_link ? (
-            <a href={r.group_link} target="_blank" rel="noreferrer" className="flex-1 h-11 rounded-[14px] bg-card text-ink no-underline flex items-center justify-center gap-2 font-semibold text-sm">
+        <div className="flex gap-2 flex-wrap">
+          {isMember && r.group_link && (
+            <a href={r.group_link} target="_blank" rel="noreferrer" className={`${btn} !bg-ink !text-white`}>
               <IconChat size={18} /> Team WhatsApp
             </a>
-          ) : null}
-          <a href={c.link} target="_blank" rel="noreferrer" className="flex-1 h-11 rounded-[14px] bg-card text-ink no-underline flex items-center justify-center gap-2 font-semibold text-sm">
-            <IconExternal size={18} /> Register
+          )}
+          <a href={c.link} target="_blank" rel="noreferrer" className={btn}>
+            <IconExternal size={18} /> Official site
           </a>
+          {c.poster && (
+            <Link href={`/competitions/${c.id}/poster`} className={btn}>
+              View poster
+            </Link>
+          )}
         </div>
         {isOwner && !r.group_link && (
-          <div className="flex gap-2">
-            <input value={linkDraft} onChange={(e) => setLinkDraft(e.target.value)} placeholder="Paste team WhatsApp group link" className={`${inputCls} !h-11 !rounded-[14px] text-sm`} />
-            <button type="button" onClick={saveLink} className="h-11 px-4 rounded-[14px] bg-ink text-white text-sm font-semibold shrink-0">
-              Save
-            </button>
-          </div>
+          <Link href={`/teams/${r.id}/edit`} className="h-11 rounded-[14px] border-[1.5px] border-dashed border-ink text-ink no-underline flex items-center justify-center text-sm font-semibold">
+            Add the team WhatsApp group link
+          </Link>
         )}
       </div>
 
@@ -101,23 +100,28 @@ export default function TeamPage() {
         </Link>
       )}
 
-      <SectionTitle title="Members" aside={isMember ? "Contacts visible to members only" : "Join to see contacts"} />
+      <SectionTitle title="Members" />
 
       <div className="bg-card rounded-[22px] px-3.5 py-1.5 flex flex-col">
         {members.map((m, i) => {
           const p = db.profiles.find((x) => x.id === m.profile_id);
           if (!p) return null;
           return (
-            <div key={m.profile_id} className={`flex items-center gap-3 py-2.5 ${i < members.length - 1 || slots > 0 ? "border-b border-sand" : ""}`}>
-              <Avatar id={p.avatar_id} size={40} radius={13} alt={p.full_name} />
-              <div className="flex-1 flex flex-col gap-px min-w-0">
-                <span className="font-semibold text-sm">
-                  {p.id === me.id ? "You" : p.full_name}
-                  {p.id === r.owner_id && " · Owner"} {p.is_demo && <DemoTag />}
-                </span>
-                <span className="text-xs text-muted">
-                  {m.roles.join(" + ")} · {r.min_hours_per_week} h/week{isMember && p.contact ? ` · ${p.contact}` : ""}
-                </span>
+            <div key={m.profile_id} className={`flex items-center gap-2 py-2.5 ${i < members.length - 1 || slots > 0 ? "border-b border-sand" : ""}`}>
+              <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                <Link href={p.id === me.id ? "/profile" : `/users/${p.id}?team=${r.id}`} className="group flex items-center gap-3 no-underline text-ink rounded-xl -mx-1.5 px-1.5 py-1 hover:bg-paper">
+                  <Avatar id={p.avatar_id} size={40} radius={13} alt={p.full_name} />
+                  <div className="flex-1 flex flex-col gap-px min-w-0">
+                    <span className="font-semibold text-sm">
+                      {p.id === me.id ? "You" : p.full_name}
+                      {p.id === r.owner_id && " · Owner"} {p.is_demo && <DemoTag />}
+                    </span>
+                    <span className="text-xs text-muted">
+                      {m.roles.length ? m.roles.join(" + ") : "Member"} · {r.min_hours_per_week} h/week
+                    </span>
+                  </div>
+                  <IconBack size={16} className="rotate-180 text-muted shrink-0 transition-transform group-hover:translate-x-0.5" />
+                </Link>
               </div>
               {isOwner && p.id !== me.id && (
                 <button
@@ -183,6 +187,16 @@ export default function TeamPage() {
         </div>
       )}
 
+      {!isMember &&
+        (requested ? (
+          <div className="h-12 rounded-2xl bg-card flex items-center justify-center text-sm font-semibold text-muted">Request sent, waiting for reply</div>
+        ) : blocker ? (
+          <div className="rounded-2xl bg-card px-4 py-3 text-[13px] text-muted">{blocker}</div>
+        ) : (
+          <Link href={`/competitions/${c.id}/join/${r.id}`} className="h-12 rounded-2xl bg-ink text-white no-underline flex items-center justify-center font-semibold text-sm">
+            Request to join
+          </Link>
+        ))}
       {!isMember && (
         <div className="flex">
           <BackButton />

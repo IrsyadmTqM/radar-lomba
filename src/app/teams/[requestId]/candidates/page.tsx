@@ -4,21 +4,33 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { candidatesFor, type Match } from "@/lib/matching";
+import { candidatesFor, explain, joinBlocker, type Match } from "@/lib/matching";
 import { GOAL_LABEL } from "@/lib/types";
-import { Avatar, BackButton, CheckRow, DemoTag, SectionTitle } from "@/components/ui";
+import { Avatar, BackButton, CheckRow, DemoTag, Gone, SectionTitle } from "@/components/ui";
+import { IconClose, IconSearch } from "@/components/Icons";
 
 export default function Candidates() {
   const { requestId } = useParams<{ requestId: string }>();
   const { db, me, sendInvite, showToast } = useStore();
   const [roleFilter, setRoleFilter] = useState<string[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [q, setQ] = useState("");
 
   const r = db.requests.find((x) => x.id === requestId);
   const c = r && db.competitions.find((x) => x.id === r.competition_id);
-  if (!r || !c || !me) return null;
+  if (!me) return null;
+  if (!r || !c) return <Gone title="This team no longer exists" body="Everyone left the team, so it was deleted." href="/teams" label="Back to My teams" />;
 
-  const all = candidatesFor(db, r);
+  const query = q.trim().toLowerCase();
+  const memberIds = new Set(db.members.filter((m) => m.request_id === r.id).map((m) => m.profile_id));
+  // With a search, look through everyone registered, not only the best matches.
+  const all: Match[] = query
+    ? db.profiles
+        .filter((p) => p.role !== "admin" && p.data_consent && !memberIds.has(p.id))
+        .filter((p) => `${p.full_name} ${p.major} ${p.campus} ${p.skills.join(" ")}`.toLowerCase().includes(query))
+        .map((p) => explain(db, r, p))
+        .sort((a, b) => b.score - a.score)
+    : candidatesFor(db, r);
   const list = roleFilter.length ? all.filter((m) => roleFilter.every((x) => m.profile.skills.includes(x))) : all;
   const members = db.members.filter((m) => m.request_id === r.id).length;
   const isOwner = r.owner_id === me.id;
@@ -26,11 +38,12 @@ export default function Candidates() {
   const invitedIds = new Set(db.invitations.filter((i) => i.request_id === r.id && i.type === "invite" && i.status === "pending").map((i) => i.to_id));
 
   function invite(m: Match) {
+    const roles = m.matchedRoles.length ? m.matchedRoles : m.profile.skills.slice(0, 1);
     const res = sendInvite(
       r!.id,
       m.profile.id,
-      m.matchedRoles,
-      `Hi ${m.profile.full_name.split(" ")[0]}! We need ${m.matchedRoles.join(" and ")} for ${c!.name}. We aim for ${GOAL_LABEL[r!.goal]}, about ${r!.min_hours_per_week} h/week.`,
+      roles,
+      `Hi ${m.profile.full_name.split(" ")[0]}! We'd love you on ${r!.title} as ${roles.join(" and ")} for ${c!.name}. We aim for ${GOAL_LABEL[r!.goal]}, about ${r!.min_hours_per_week} h/week.`,
     );
     if (!res.ok) return showToast(res.error);
     showToast(`Invite sent to ${m.profile.full_name}`);
@@ -56,6 +69,26 @@ export default function Candidates() {
         </div>
       )}
 
+      <label className="h-12 rounded-2xl bg-sand flex items-center gap-2.5 px-3.5 focus-within:ring-2 focus-within:ring-ink transition-shadow">
+        <IconSearch size={18} color="#686961" />
+        <input
+          value={q}
+          onChange={(e) => {
+            setQ(e.target.value);
+            setOpenId(null);
+          }}
+          maxLength={50}
+          placeholder="Search everyone by name, major or skill"
+          aria-label="Search registered students"
+          className="border-none bg-transparent text-[15px] text-ink outline-none w-full"
+        />
+        {q && (
+          <button type="button" aria-label="Clear search" onClick={() => setQ("")} className="w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:text-ink">
+            <IconClose size={14} />
+          </button>
+        )}
+      </label>
+
       <div className="flex flex-col gap-2">
         <span className="text-xs text-muted">Roles you need · tap to filter</span>
         <div className="flex gap-2 flex-wrap">
@@ -77,18 +110,26 @@ export default function Candidates() {
         </div>
       </div>
 
-      <SectionTitle title={`${list.length} match${list.length === 1 ? "" : "es"}`} aside="Best fit first" />
+      <SectionTitle
+        title={query ? `${list.length} result${list.length === 1 ? "" : "s"}` : `${list.length} match${list.length === 1 ? "" : "es"}`}
+        aside={query ? "All registered students, best fit first" : "Best fit first"}
+      />
 
       {list.length === 0 && (
         <div className="bg-card rounded-[22px] p-5 text-center flex flex-col gap-1">
-          <span className="font-semibold">Nobody fits yet</span>
-          <span className="text-sm text-muted">People already in a team for this competition, or without enough free hours, are hidden. Try fewer filters or a lower minimum.</span>
+          <span className="font-semibold">{query ? "No one found" : "Nobody fits yet"}</span>
+          <span className="text-sm text-muted">
+            {query
+              ? "Try another name, major or skill."
+              : "People already in a team for this competition, or without enough free hours, are hidden. Search by name to see everyone."}
+          </span>
         </div>
       )}
 
       {list.map((m, i) => {
         const open = expanded(m, i);
         const invited = invitedIds.has(m.profile.id);
+        const blocked = joinBlocker(db, r, m.profile.id);
         const canInvite = isOwner && r.status === "open";
         if (!open)
           return (
@@ -107,7 +148,7 @@ export default function Candidates() {
             </button>
           );
         return (
-          <div key={m.profile.id} className="bg-lime rounded-3xl p-4 flex flex-col gap-3">
+          <div key={m.profile.id} className="animate-rise bg-lime rounded-3xl p-4 flex flex-col gap-3">
             <div className="flex items-center gap-3">
               <Avatar id={m.profile.avatar_id} size={52} radius={16} alt={m.profile.full_name} />
               <div className="flex-1 flex flex-col gap-0.5 min-w-0">
@@ -129,7 +170,9 @@ export default function Candidates() {
               View full profile
             </Link>
             {canInvite &&
-              (invited ? (
+              (blocked && !invited ? (
+                <div className="rounded-[14px] bg-card/70 px-3 py-2.5 text-[13px]">{blocked.replace("You're", "They're").replace("You have", "They have").replace("removed you", "removed them")}</div>
+              ) : invited ? (
                 <div className="h-[46px] rounded-[14px] bg-card/70 flex items-center justify-center text-sm font-semibold">Invite sent, waiting for reply</div>
               ) : (
                 <button type="button" onClick={() => invite(m)} className="h-[46px] rounded-[14px] bg-ink text-white font-semibold text-sm">

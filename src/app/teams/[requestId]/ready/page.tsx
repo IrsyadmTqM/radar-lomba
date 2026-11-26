@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { daysLeft, useStore } from "@/lib/store";
 import { IconArrow, IconChat } from "@/components/Icons";
+import { Gone } from "@/components/ui";
 
 export default function TeamReady() {
   const { requestId } = useParams<{ requestId: string }>();
   const { db, now } = useStore();
   const r = db.requests.find((x) => x.id === requestId);
   const c = r && db.competitions.find((x) => x.id === r.competition_id);
-  if (!r || !c) return null;
+  if (!r || !c) return <Gone title="This team no longer exists" body="Everyone left the team, so it was deleted." href="/teams" label="Back to My teams" />;
   const count = db.members.filter((m) => m.request_id === r.id).length;
   const left = daysLeft(c.registration_deadline, now);
 

@@ -46,10 +46,13 @@ export default function CompetitionDetail() {
             {c.category} · {c.subcategory}
           </span>
           <h1 className="m-0 text-[28px] font-bold leading-tight">{c.name}</h1>
-          <span className="text-sm text-mist">{c.student_added ? "Added by a student" : c.organizer}</span>
-          {c.rewards.length > 0 && (
-            <div className="flex gap-1.5 flex-wrap pt-1.5 text-ink">
-              <RewardTags rewards={c.rewards} />
+          <span className="text-sm text-mist">{c.organizer}</span>
+          {(c.rewards.length > 0 || c.student_added) && (
+            <div className="flex gap-1.5 flex-wrap items-center pt-1.5">
+              {c.student_added && (
+                <span className="inline-flex items-center rounded-[10px] border border-dashed border-mist text-mist px-2 py-[3px] text-[11px] font-semibold">Added by student</span>
+              )}
+              <RewardTags rewards={c.rewards} tone="lime" />
             </div>
           )}
         </div>
@@ -169,8 +172,9 @@ function Stat({ label, value }: { label: string; value: string }) {
 function NotFound() {
   return (
     <main className="min-h-dvh p-6 flex flex-col items-center justify-center gap-3 text-center">
-      <h1 className="m-0 text-xl font-bold">Not found</h1>
-      <Link href="/competitions" className="text-ink underline">
+      <h1 className="m-0 text-xl font-bold">This competition was removed</h1>
+      <p className="m-0 text-sm text-muted">It is no longer listed.</p>
+      <Link href="/competitions" className="mt-2 h-12 px-5 rounded-2xl bg-ink text-white no-underline flex items-center font-semibold text-sm">
         Back to competitions
       </Link>
     </main>

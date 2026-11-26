@@ -7,8 +7,9 @@ import { useStore } from "@/lib/store";
 import { freeHours, usedHours } from "@/lib/matching";
 import { GOAL_OPTIONS, SKILLS } from "@/lib/types";
 import { BottomNav } from "@/components/BottomNav";
-import { Avatar, ConfirmModal, TogglePill } from "@/components/ui";
-import { IconPlus } from "@/components/Icons";
+import { Avatar, ConfirmModal, ContactList, TogglePill } from "@/components/ui";
+import { contactLinks } from "@/lib/contacts";
+import { IconPencil, IconPlus } from "@/components/Icons";
 import { PortfolioList } from "@/components/PortfolioList";
 
 export default function Profile() {
@@ -29,7 +30,12 @@ export default function Profile() {
 
   return (
     <main className="min-h-dvh px-5 pt-14 pb-32 flex flex-col gap-4">
-      <h1 className="m-0 text-[28px] font-bold">Profile</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="m-0 text-[28px] font-bold">Profile</h1>
+        <Link href="/profile/edit" aria-label="Edit profile" title="Edit profile" className="group w-11 h-11 rounded-[14px] bg-card text-ink flex items-center justify-center">
+          <IconPencil size={20} className="transition-transform duration-200 group-hover:-rotate-12" />
+        </Link>
+      </div>
 
       <div className="bg-card rounded-[24px] p-4 flex items-center gap-4">
         <Link href="/profile/edit" aria-label="Edit profile" className="rounded-[22px] shadow-[0_0_0_4px_#CEEC68]">
@@ -95,9 +101,20 @@ export default function Profile() {
         <PortfolioList items={me.portfolio ?? []} onRemove={(id) => { removePortfolio(id); showToast("Removed"); }} />
       </div>
 
-      <div className="bg-card rounded-2xl px-4 py-3 flex justify-between items-center">
-        <span className="text-sm">Contact</span>
-        <span className="text-sm font-semibold">{me.contact}</span>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-[13px] font-semibold">Contacts</span>
+          <Link href="/profile/account" className="text-xs underline text-ink">
+            Change
+          </Link>
+        </div>
+        {contactLinks(me).length ? (
+          <ContactList links={contactLinks(me)} />
+        ) : (
+          <Link href="/profile/account" className="no-underline text-ink bg-card rounded-2xl px-4 py-3 text-sm">
+            Add your WhatsApp number so teammates can reach you
+          </Link>
+        )}
       </div>
 
       <Link href="/profile/account" className="no-underline text-ink bg-card rounded-2xl px-4 py-3 flex justify-between items-center font-semibold text-sm">

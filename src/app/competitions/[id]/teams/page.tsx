@@ -5,13 +5,14 @@ import { useParams } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { joinBlocker } from "@/lib/matching";
 import { GOAL_LABEL } from "@/lib/types";
-import { BackButton, DemoTag, TeamIcon } from "@/components/ui";
+import { BackButton, DemoTag, Gone, TeamIcon } from "@/components/ui";
 
 export default function AllTeams() {
   const { id } = useParams<{ id: string }>();
   const { db, me } = useStore();
   const c = db.competitions.find((x) => x.id === id);
-  if (!c || !me) return null;
+  if (!me) return null;
+  if (!c) return <Gone title="This competition was removed" body="It is no longer listed." href="/competitions" label="Back to competitions" />;
   const teams = db.requests.filter((r) => r.competition_id === c.id && r.status === "open");
   return (
     <main className="min-h-dvh px-5 pt-14 pb-10 flex flex-col gap-4">

@@ -28,7 +28,10 @@ export type NewRequest = {
   min_hours_per_week: number;
   goal: Goal;
   description: string;
+  group_link: string;
 };
+
+type RequestPatch = Partial<Pick<TeamRequest, "title" | "icon_id" | "needed_roles" | "description" | "min_hours_per_week" | "group_link">>;
 
 export type NewCompetition = Omit<Competition, "id" | "added_by" | "student_added" | "hidden">;
 
@@ -47,7 +50,7 @@ type Store = {
   respond: (invitationId: string, accept: boolean) => Result;
   setStatus: (requestId: string, status: TeamRequest["status"]) => void;
   setGroupLink: (requestId: string, link: string) => void;
-  updateRequest: (requestId: string, patch: Partial<Pick<TeamRequest, "title" | "icon_id" | "needed_roles" | "description" | "min_hours_per_week">>) => void;
+  updateRequest: (requestId: string, patch: RequestPatch) => void;
   leaveTeam: (requestId: string) => void;
   kickMember: (requestId: string, profileId: string) => Result;
   signOut: () => void;
@@ -60,6 +63,9 @@ type Store = {
   removePortfolio: (id: string) => void;
   deleteAccount: () => void;
   toggleSaved: (competitionId: string) => void;
+  dismissNotice: (noticeId: string) => void;
+  clearNotices: () => void;
+  dismissInvitation: (invitationId: string) => void;
   resetDemo: () => void;
 };
 
@@ -73,6 +79,27 @@ function membersOf(db: DB, requestId: string) {
 
 function maxSize(db: DB, r: TeamRequest) {
   return db.competitions.find((c) => c.id === r.competition_id)?.max_team_size ?? 4;
+}
+
+/** Delete a team nobody is in any more, plus anything still pending for it. */
+function dropTeamIfEmpty(db: DB, requestId: string) {
+  if (membersOf(db, requestId).length > 0) return false;
+  db.requests = db.requests.filter((r) => r.id !== requestId);
+  db.invitations = db.invitations.filter((i) => !(i.request_id === requestId && i.status === "pending"));
+  return true;
+}
+
+/** v3 stored one free-text `contact`; v4 splits it into WhatsApp / Instagram / LinkedIn. */
+function migrate(raw: DB & { version: number }): DB | null {
+  if (raw.version === 4) return raw;
+  if (raw.version !== 3) return null;
+  const profiles = raw.profiles.map((p) => {
+    const { contact, ...rest } = p as Profile & { contact?: string };
+    const c = (contact ?? "").trim();
+    const isPhone = /^\+?[\d\s-]{8,}$/.test(c);
+    return { ...rest, whatsapp: rest.whatsapp ?? (isPhone ? c : ""), instagram: rest.instagram ?? (!isPhone && c ? c.replace(/^@/, "") : undefined) };
+  });
+  return { ...raw, version: 4, profiles };
 }
 
 function nameOf(db: DB, id: string) {
@@ -180,8 +207,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) {
-        const parsed = JSON.parse(raw) as DB;
-        if (parsed.version === 3) setDb(parsed);
+        const parsed = migrate(JSON.parse(raw));
+        if (parsed) setDb(parsed);
       }
     } catch {
       /* storage blocked: run on fresh seed */
@@ -283,7 +310,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           min_hours_per_week: r.min_hours_per_week,
           goal: r.goal,
           description: r.description,
-          group_link: "",
+          group_link: r.group_link,
           status: "open",
           created_at: Date.now(),
         });
@@ -425,7 +452,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   );
 
   const updateRequest = useCallback(
-    (requestId: string, patch: Partial<Pick<TeamRequest, "title" | "icon_id" | "needed_roles" | "description" | "min_hours_per_week">>) => {
+    (requestId: string, patch: RequestPatch) => {
       update((d) => {
         const r = d.requests.find((x) => x.id === requestId);
         if (r && r.owner_id === d.me) Object.assign(r, patch);
@@ -441,11 +468,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         const r = d.requests.find((x) => x.id === requestId);
         if (!r) return;
         d.members = d.members.filter((m) => !(m.request_id === requestId && m.profile_id === me.id));
+        // Last one out: the team is deleted, not left behind empty.
+        if (dropTeamIfEmpty(d, requestId)) return;
         if (r.owner_id === me.id) {
-          // Owner leaving: hand over to the longest-standing member, or close.
+          // Owner leaving: hand over to the longest-standing member.
           const next = d.members.filter((m) => m.request_id === requestId).sort((a, b) => a.joined_at - b.joined_at)[0];
           if (next) r.owner_id = next.profile_id;
-          else r.status = "closed";
         }
         if (r.status === "full" || (r.status === "closed" && r.owner_id !== me.id)) r.status = "open";
         if (r.owner_id !== me.id) {
@@ -501,7 +529,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           bio: "",
           commitment_hours_per_week: 0,
           commitment_goal: "just_experience",
-          contact: "",
+          whatsapp: "",
           data_consent: false,
           is_demo: false,
           role: "admin",
@@ -588,13 +616,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     update((d) => {
       const id = d.me;
       if (!id) return;
+      const myTeams = d.members.filter((m) => m.profile_id === id).map((m) => m.request_id);
       for (const r of d.requests) {
         if (r.owner_id !== id) continue;
         const next = d.members.filter((m) => m.request_id === r.id && m.profile_id !== id).sort((a, b) => a.joined_at - b.joined_at)[0];
         if (next) r.owner_id = next.profile_id;
-        else r.status = "closed";
       }
       d.members = d.members.filter((m) => m.profile_id !== id);
+      for (const rid of myTeams) dropTeamIfEmpty(d, rid);
+      d.notices = d.notices.filter((n) => n.to_id !== id);
       d.invitations = d.invitations.filter((i) => i.from_id !== id && i.to_id !== id);
       d.profiles = d.profiles.filter((p) => p.id !== id);
       d.me = null;
@@ -605,6 +635,33 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     (competitionId: string) => {
       update((d) => {
         d.saved = d.saved.includes(competitionId) ? d.saved.filter((x) => x !== competitionId) : [...d.saved, competitionId];
+      });
+    },
+    [update],
+  );
+
+  const dismissNotice = useCallback(
+    (noticeId: string) => {
+      update((d) => {
+        d.notices = d.notices.filter((n) => n.id !== noticeId);
+      });
+    },
+    [update],
+  );
+
+  const clearNotices = useCallback(() => {
+    update((d) => {
+      d.notices = d.notices.filter((n) => n.to_id !== d.me);
+    });
+  }, [update]);
+
+  const dismissInvitation = useCallback(
+    (invitationId: string) => {
+      update((d) => {
+        const inv = d.invitations.find((i) => i.id === invitationId);
+        // Only finished items can be cleared; pending ones still need an answer.
+        if (!inv || !d.me || inv.status === "pending") return;
+        inv.dismissed_by = [...(inv.dismissed_by ?? []), d.me];
       });
     },
     [update],
@@ -647,6 +704,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     removePortfolio,
     deleteAccount,
     toggleSaved,
+    dismissNotice,
+    clearNotices,
+    dismissInvitation,
     resetDemo,
   };
 

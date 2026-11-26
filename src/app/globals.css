@@ -28,6 +28,13 @@
   --animate-drop: drop 0.3s var(--ease-out-soft);
 }
 
+/* Always reserve the scrollbar's space, so the centred phone column doesn't
+   jump left/right between short and long pages on desktop. */
+html {
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
+}
+
 html,
 body {
   background: var(--color-sand);
@@ -42,6 +49,12 @@ body {
 input::placeholder,
 textarea::placeholder {
   color: var(--color-muted);
+}
+
+/* Urbanist's bullets sit too tight; spread them out (typed text only). */
+input[type="password"]:not(:placeholder-shown) {
+  letter-spacing: 0.28em;
+  font-size: 17px;
 }
 
 button {
