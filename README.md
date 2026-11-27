@@ -8,13 +8,13 @@
   <img src="docs/screenshots/overview.png" alt="Radar Lomba screens: welcome, competitions, competition detail, find teammates, inbox, profile">
 </p>
 
-<p align="center"><sub>Screens from the running prototype. All people, teams and competitions shown are demo data.</sub></p>
+<p align="center"><sub>Screens from the running prototype. Competitions are real (from a verified list); people and teams are demo data.</sub></p>
 
 Radar Lomba helps undergraduates at one pilot campus (UIN Sunan Gunung Djati Bandung) form teams for a specific competition. A student opens a competition, posts a team with the roles it still needs, sees matching students, sends invites, and the team forms when people accept. Matching is plain rules (roles, free hours, goal). There is no AI in the product.
 
 Built by team Xplover for **STACK 2026**, Case 1: Smarter Campus and Learning.
 
-> **Status: semifinal prototype.** This repository is the **frontend only**. It runs on demo data stored in the browser (`localStorage`), so the whole flow can be clicked through without a backend. The real database and sign-in (Supabase) are planned for the Final Round and are not built yet. See [Complete vs not yet](#complete-vs-not-yet).
+> **Status: semifinal prototype.** This repository is the **frontend only**. It lists 29 real competitions and runs on demo people and teams stored in the browser (`localStorage`), so the whole flow can be clicked through without a backend. The real database and sign-in (Supabase) are planned for the Final Round and are not built yet. See [Complete vs not yet](#complete-vs-not-yet).
 
 ## Why it exists
 
@@ -71,7 +71,7 @@ Shortcuts: on the sign-in page, "I already have an account" opens a ready-made d
 ## Features
 
 **Students**
-- Competition list with search, category chips, saved competitions, rewards as tags and a "Closing soon" highlight.
+- Competition list (29 real competitions, closed ones hidden) with search, category chips, saved competitions, rewards as tags and a "Closing soon" highlight.
 - Competition detail: rules, deadline, team size, poster, official site, teams looking for people.
 - Add a competition that is not listed. It shows as "Added by student". Only the person who added it can edit or delete it, and an admin can hide it.
 - Team creation, candidate search, invite and join request flows, with a Sent and Received inbox.
@@ -121,10 +121,13 @@ src/
   components/           bottom nav, icons, shared UI, forms
   lib/
     types.ts            data shapes (match the planned Supabase tables)
-    seed.ts             fictional demo data
+    competitions.ts     29 real competitions (generated, do not edit by hand)
+    seed.ts             demo people, teams and accounts
     matching.ts         score, free hours, eligibility rules
     contacts.ts         contact validation and links
     store.tsx           local demo store; each action maps to one Supabase call later
+scripts/                import_lomba.py turns the verified sheet into competitions.ts
+docs/                   import report, logo, screenshots
 public/                 avatars, team images, illustrations, logo, PWA icons and manifest
 ```
 
@@ -136,14 +139,15 @@ Replace the actions in `src/lib/store.tsx` (`createProfile`, `createRequest`, `s
 
 ## Complete vs not yet
 
-**Complete in this prototype:** every screen above, the multi-competition rules, form validation, empty and error states, and the PWA manifest and icons.
+**Complete in this prototype:** every screen above, real competition data, deadline checks, the multi-competition rules, form validation, empty and error states, and the PWA manifest and icons.
 
 **Not yet:** real sign-in and real admin accounts, a database, server-side checks (RLS), poster storage (posters are small images kept in the browser), CSV import of competitions, push notifications, offline caching.
 
 ## Known limitations
 
 - Data lives in one browser only. Clearing site data resets it.
-- Competitions, teams and people are fictional and marked "Demo" or "Sample". Their links are placeholders.
+- Competitions are real: 29 entries from a list verified on 26 Nov 2026, translated to English, with closed ones hidden (see `docs/import-lomba-report.md`). People, teams and student accounts are fictional and marked "Demo" or "Sample".
+- Competition data is a snapshot. Deadlines are enforced in the app (no new teams or requests after the deadline), but nothing updates automatically.
 - Demo profiles answer automatically after a few seconds so the flow can be shown without a second person.
 - The sign-in and email steps are simulated. Nothing is sent.
 
