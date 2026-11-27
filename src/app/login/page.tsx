@@ -47,7 +47,7 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-8 flex flex-col gap-6">
+    <main className="min-h-dvh px-5 pt-7 pb-8 flex flex-col gap-6">
       <BackButton href="/" />
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Welcome back</h1>

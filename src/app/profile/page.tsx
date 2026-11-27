@@ -29,7 +29,7 @@ export default function Profile() {
   };
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-32 flex flex-col gap-4">
+    <main className="min-h-dvh px-5 pt-7 pb-32 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="m-0 text-[28px] font-bold">Profile</h1>
         <Link href="/profile/edit" aria-label="Edit profile" title="Edit profile" className="group w-11 h-11 rounded-[14px] bg-card text-ink flex items-center justify-center">

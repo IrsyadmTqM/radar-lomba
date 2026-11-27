@@ -26,7 +26,7 @@ function Body() {
   const roles = r ? r.needed_roles.filter((x) => p.skills.includes(x)) : [];
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-10 flex flex-col gap-4">
+    <main className="min-h-dvh px-5 pt-7 pb-10 flex flex-col gap-4">
       <BackButton />
       <div className="bg-card rounded-[24px] p-4 flex items-center gap-4">
         <Avatar id={p.avatar_id} size={72} radius={22} alt={p.full_name} />

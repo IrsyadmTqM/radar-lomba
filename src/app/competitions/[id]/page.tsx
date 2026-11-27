@@ -27,7 +27,7 @@ export default function CompetitionDetail() {
 
   return (
     <main className="min-h-dvh flex flex-col pb-28">
-      <div className="bg-ink text-white rounded-b-[32px] px-5 pt-14 pb-[22px] flex flex-col gap-[18px]">
+      <div className="bg-ink text-white rounded-b-[32px] px-5 pt-7 pb-[22px] flex flex-col gap-[18px]">
         <div className="flex justify-between">
           <BackButton href="/competitions" dark />
           <div className="flex gap-2">

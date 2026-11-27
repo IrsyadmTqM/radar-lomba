@@ -16,7 +16,7 @@ export default function EditCompetition() {
   const hasTeams = db.requests.some((r) => r.competition_id === c.id);
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-10 flex flex-col gap-5">
+    <main className="min-h-dvh px-5 pt-7 pb-10 flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <BackButton href={`/competitions/${c.id}`} />
         <h1 className="m-0 text-[22px] font-bold">Edit competition</h1>

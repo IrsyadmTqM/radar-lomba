@@ -9,7 +9,7 @@ export default function NewCompetition() {
   const router = useRouter();
   const { addCompetition, showToast } = useStore();
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-10 flex flex-col gap-5">
+    <main className="min-h-dvh px-5 pt-7 pb-10 flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <BackButton href="/competitions" />
         <div className="flex flex-col">

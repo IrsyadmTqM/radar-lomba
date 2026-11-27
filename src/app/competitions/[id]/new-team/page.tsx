@@ -53,7 +53,7 @@ export default function NewTeam() {
   }
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-8 flex flex-col gap-5" onInput={clear}>
+    <main className="min-h-dvh px-5 pt-7 pb-8 flex flex-col gap-5" onInput={clear}>
       <div className="flex items-center gap-3">
         <BackButton href={`/competitions/${c.id}`} />
         <div className="flex flex-col">
