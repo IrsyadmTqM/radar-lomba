@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { daysLeft, useStore } from "@/lib/store";
+import { daysLeft, isPast, useStore } from "@/lib/store";
 import { BackButton, InfoTag, StudentLabel } from "@/components/ui";
 import { IconBookmark, IconTrash } from "@/components/Icons";
 
 export default function Saved() {
   const { db, now, toggleSaved, showToast } = useStore();
-  const list = db.competitions.filter((c) => db.saved.includes(c.id) && !c.hidden);
+  const list = db.competitions.filter((c) => db.saved.includes(c.id) && !c.hidden && !isPast(c.registration_deadline, now));
   return (
     <main className="min-h-dvh px-5 pt-7 pb-10 flex flex-col gap-4">
       <div className="flex items-center gap-3">
@@ -36,7 +36,7 @@ export default function Saved() {
                   {c.student_added && <StudentLabel />}
                 </div>
               </div>
-              <span className="text-xs bg-paper rounded-lg px-2 py-1.5 shrink-0">{left < 0 ? "closed" : `${left} d`}</span>
+              <span className="text-xs bg-paper rounded-lg px-2 py-1.5 shrink-0">{left} d</span>
             </Link>
             <button
               type="button"

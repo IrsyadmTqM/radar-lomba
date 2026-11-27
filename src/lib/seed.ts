@@ -55,7 +55,7 @@ export function makeSeed(): DB {
   ];
 
   return {
-    version: 4,
+    version: 5,
     me: null,
     profiles,
     competitions,

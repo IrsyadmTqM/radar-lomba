@@ -13,17 +13,19 @@ export default function EditProfile() {
   const [name, setName] = useState(me?.full_name ?? "");
   const [campus, setCampus] = useState(me?.campus ?? "");
   const [major, setMajor] = useState(me?.major ?? "");
+  const [year, setYear] = useState(me?.entry_year ?? 2023);
   const { error, nonce, setError, clear, invalid } = useFormError();
   const submit = useSubmitState();
-  const dirty = useDirty({ avatar, name: name.trim(), campus: campus.trim(), major: major.trim() }, { avatar: me?.avatar_id, name: me?.full_name, campus: me?.campus, major: me?.major });
+  const dirty = useDirty({ avatar, name: name.trim(), campus: campus.trim(), major: major.trim(), year }, { avatar: me?.avatar_id, name: me?.full_name, campus: me?.campus, major: me?.major, year: me?.entry_year });
   if (!me) return null;
 
   async function save() {
     if (name.trim().length < 2) return setError("Add your name.", "name");
     if (!campus.trim()) return setError("Add your campus.", "campus");
     if (!major.trim()) return setError("Add your major.", "major");
+    if (!Number.isInteger(year) || year < 2018 || year > 2026) return setError("Entry year must be between 2018 and 2026.", "year");
     clear();
-    if (await submit.run(() => updateProfile({ avatar_id: avatar, full_name: name.trim(), campus: campus.trim(), major: major.trim() }))) {
+    if (await submit.run(() => updateProfile({ avatar_id: avatar, full_name: name.trim(), campus: campus.trim(), major: major.trim(), entry_year: year }))) {
       showToast("Profile updated");
       router.push("/profile");
     }
@@ -51,9 +53,14 @@ export default function EditProfile() {
       <Field label="Campus">
         <input name="campus" aria-invalid={invalid("campus")} maxLength={MAX.campus} value={campus} onChange={(e) => setCampus(e.target.value)} placeholder="e.g. UIN Sunan Gunung Djati Bandung" className={inputCls} />
       </Field>
-      <Field label="Major">
-        <input name="major" aria-invalid={invalid("major")} maxLength={MAX.major} value={major} onChange={(e) => setMajor(e.target.value)} placeholder="e.g. Informatics" className={inputCls} />
-      </Field>
+      <div className="grid grid-cols-[1fr_96px] gap-3">
+        <Field label="Major">
+          <input name="major" aria-invalid={invalid("major")} maxLength={MAX.major} value={major} onChange={(e) => setMajor(e.target.value)} placeholder="e.g. Informatics" className={inputCls} />
+        </Field>
+        <Field label="Entry year">
+          <input name="year" type="number" inputMode="numeric" min={2018} max={2026} aria-invalid={invalid("year")} value={year} onChange={(e) => setYear(Number(e.target.value))} className={inputCls} />
+        </Field>
+      </div>
       <FormAlert message={error} nonce={nonce} />
       <div className="mt-auto flex flex-col gap-2">
         <PrimaryArrowButton onClick={save} disabled={!dirty} state={submit.state} doneLabel="Saved">

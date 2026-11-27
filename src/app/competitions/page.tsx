@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { daysLeft, useStore } from "@/lib/store";
+import { daysLeft, isPast, useStore } from "@/lib/store";
 import { CATEGORIES } from "@/lib/types";
 import { BottomNav } from "@/components/BottomNav";
 import { IconBookmark, IconPlus, IconSearch } from "@/components/Icons";
@@ -17,7 +17,7 @@ export default function Competitions() {
   const list = useMemo(() => {
     return db.competitions
       .filter((c) => !c.hidden)
-      .filter((c) => daysLeft(c.registration_deadline, now) >= 0) // hide past deadlines
+      .filter((c) => !isPast(c.registration_deadline, now)) // hide past deadlines
       .filter((c) => cat === "All" || c.category === cat)
       .filter((c) => !q.trim() || `${c.name} ${c.organizer} ${c.subcategory}`.toLowerCase().includes(q.trim().toLowerCase()))
       .map((c) => ({ c, open: db.requests.filter((r) => r.competition_id === c.id && r.status === "open").length }))

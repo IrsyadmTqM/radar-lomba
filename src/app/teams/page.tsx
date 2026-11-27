@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { daysLeft, useStore } from "@/lib/store";
+import { daysLeft, isPast, useStore } from "@/lib/store";
 import { activeTeamsOf, freeHours, joinBlocker, teamsOf, usedHours } from "@/lib/matching";
 import { GOAL_LABEL } from "@/lib/types";
 import { BottomNav } from "@/components/BottomNav";
@@ -13,7 +13,11 @@ export default function MyTeams() {
   const { db, me, now } = useStore();
   const [q, setQ] = useState("");
   if (!me) return null;
-  const teams = teamsOf(db, me.id);
+  // Teams whose competition has closed are no longer shown.
+  const teams = teamsOf(db, me.id).filter((r) => {
+    const c = db.competitions.find((x) => x.id === r.competition_id);
+    return !!c && !isPast(c.registration_deadline, now);
+  });
   const active = activeTeamsOf(db, me.id).length;
   const used = usedHours(db, me.id);
   const free = freeHours(db, me.id);
@@ -24,7 +28,7 @@ export default function MyTeams() {
     ? db.requests
         .filter((r) => r.status === "open" && !mineIds.has(r.id))
         .map((r) => ({ r, c: db.competitions.find((x) => x.id === r.competition_id) }))
-        .filter((x): x is { r: typeof x.r; c: NonNullable<typeof x.c> } => !!x.c && !x.c.hidden && daysLeft(x.c.registration_deadline, now) >= 0)
+        .filter((x): x is { r: typeof x.r; c: NonNullable<typeof x.c> } => !!x.c && !x.c.hidden && !isPast(x.c.registration_deadline, now))
         .filter(({ r, c }) => `${r.title} ${c.name} ${r.needed_roles.join(" ")}`.toLowerCase().includes(query))
     : [];
   const pct = Math.min(100, Math.round((used / Math.max(1, me.commitment_hours_per_week)) * 100));

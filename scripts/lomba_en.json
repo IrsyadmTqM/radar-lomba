@@ -1,0 +1,149 @@
+{
+  "_note": "English copy for each imported sheet row, used by scripts/import_lomba.py. requirements = the team/eligibility rules; deadline = the source deadline text when it has extra detail; rewards = the prize only, short, empty when the source states none.",
+  "4": {
+    "requirements": "Teams of 2–3 from the same school or campus; high school and university students",
+    "deadline": "29 November 2026 (registration and abstract)",
+    "rewards": ["Gold, silver and bronze medals", "Cash, souvenirs or scholarships", "E-certificate for all"]
+  },
+  "5": {
+    "requirements": "Teams of 2–3 from the same school or campus; high school and university students",
+    "deadline": "29 November 2026 (registration and business model canvas)",
+    "rewards": ["Gold, silver and bronze medals", "Cash, souvenirs or scholarships", "E-certificate for all"]
+  },
+  "6": {
+    "requirements": "Teams of 1–2; university and high school students welcome",
+    "rewards": ["Gold, silver and bronze medals", "Cash, souvenirs or scholarships", "E-certificate for all"]
+  },
+  "12": {
+    "requirements": "Active undergraduate students at Indonesian universities; teams of 2–3, members may come from different campuses; one business plan per team; the business must not be running yet or be at most 6 months old",
+    "rewards": []
+  },
+  "13": {
+    "requirements": "Open to students and professionals; solo or teams of up to 3; no upper age limit; work must be original, not commercially published and not a winner in a similar contest",
+    "rewards": ["Cash prizes", "Best Concept and Best Impact awards", "E-certificate"]
+  },
+  "16": {
+    "organizer": "1ENGAGE with Meta",
+    "requirements": "Enrolled undergraduate or academy students aged 18–25; teams of 5 (one leader, four members). ID number (KTP/NIK) and contact details needed for every member",
+    "deadline": "30 November 2026 (registration runs 9–30 November 2026)",
+    "rewards": ["Cash prizes worth millions of rupiah"]
+  },
+  "20": {
+    "requirements": "Teams of 3–5 led by an engineering student or young engineer under 30. Mixed disciplines, universities and countries welcome, Indonesia included; under-18s need a guardian's consent",
+    "deadline": "12 December 2026, 23:59 UTC for submissions; registration open since 14 September 2026",
+    "rewards": ["€7,000 prize pool", "1st €4,000 · 2nd €2,000 · 3rd €1,000"]
+  },
+  "21": {
+    "organizer": "Platinum Ceramics Industry with Anakata Series",
+    "requirements": "Architecture or interior students up to semester 7 (Future Designer), or semester 8 students and graduates of up to 2 years (Young Designer); team rules follow the TOR",
+    "deadline": "10 February 2027 (registration); 15 February 2027 (submission)",
+    "rewards": ["Up to Rp20M (Young Designer)", "Up to Rp15M (Future Designer)", "Trip to Surabaya and trophy"]
+  },
+  "23": {
+    "requirements": "Competition for architecture students; team size follows the ADO 8.0 brief",
+    "deadline": "30 November 2026 registration; 25 December 2026 submission",
+    "rewards": []
+  },
+  "24": {
+    "requirements": "Product/Concept category for products, services, experiences, startups, prototypes or research; New Talent category for bachelor's and master's projects; team entries allowed",
+    "rewards": ["Award, jury feedback and promotion"]
+  },
+  "25": {
+    "organizer": "Streetlife with Landezine",
+    "requirements": "Global multidisciplinary teams with at least one landscape architect; students and young professionals, solo or in groups; members born after 11 December 1990 (supervising lecturers excepted)",
+    "deadline": "30 November 2026 registration; 11 December 2026 submission",
+    "rewards": ["1st €7,000 · 2nd €3,000 · 3rd €2,000", "3 honourable mentions €1,000", "University prize €1,500 travel"]
+  },
+  "26": {
+    "organizer": "TAM-TAM d.o.o. and TAM-TAM Institute",
+    "requirements": "Individuals, freelancers, studios, agencies, design teams, university and secondary school students worldwide; up to 3 entries each",
+    "rewards": ["Poster printed at 500 sites in Slovenia", "MEGAPHONE trophy"]
+  },
+  "27": {
+    "requirements": "The form asks for entrant and artwork details; an author or school can be listed; full rules in the official bases PDF",
+    "rewards": []
+  },
+  "30": {
+    "requirements": "Open to everyone: designers, students, lecturers, art institutions and art lovers worldwide; solo or team, up to 3 entries",
+    "rewards": ["Certificate and publication", "Exhibition of selected works"]
+  },
+  "33": {
+    "requirements": "Team rules are not given in the verified official post; check the guide at the registration link",
+    "rewards": ["Rp6M prize pool", "1st Rp3M · 2nd Rp2M · 3rd Rp1M", "Certificate for all"]
+  },
+  "42": {
+    "name": "Judiciary Photo Contest 2026 – Capturing Justice, Keeping Hope",
+    "organizer": "Supreme Court of the Republic of Indonesia",
+    "requirements": "Open to the public, court staff and journalists; technical details on the Supreme Court's post and site",
+    "rewards": []
+  },
+  "44": {
+    "name": "Batam City 197th Anniversary Video Reels Contest",
+    "organizer": "Batam City Government via its Communication and Informatics Office",
+    "requirements": "Solo or groups of up to 3; journalists, the public, school and university students; up to 3 entries",
+    "rewards": ["Share of a Rp94.5M pool across 3 contests"]
+  },
+  "48": {
+    "name": "Liliefors Creative Video Contest 2026",
+    "organizer": "STIS Campus Media Club (Liliefors)",
+    "requirements": "Details in the official guidebook; registration on the Liliefors site",
+    "rewards": []
+  },
+  "50": {
+    "name": "National Video Reels Competition 2026 – Cuan Halal Bisnis Berkah",
+    "organizer": "Islamic Economics and Islamic Banking Student Associations, Universitas Al-Hikmah Indonesia",
+    "requirements": "High school (SMA/SMK/MA) and university students across Indonesia; format and rules on the official poster/QR code",
+    "deadline": "30 November 2026 for registration; 7 December 2026 for entries",
+    "rewards": ["Rp3M prize pool", "Trophy and certificate"]
+  },
+  "59": {
+    "organizer": "INKLUFEST UI 2026 (@inklufest.ui, Universitas Indonesia)",
+    "requirements": "Poster entries; eligibility and technical rules follow the official booklet",
+    "deadline": "30 November 2026 for registration; entries due by 5 December",
+    "rewards": []
+  },
+  "61": {
+    "organizer": "Electronics Engineering Student Association, Politeknik Elektronika Negeri Surabaya (PENS)",
+    "requirements": "Elementary, junior high, high school and open levels; team and robot format follow each division and the guidebook",
+    "rewards": []
+  },
+  "71": {
+    "organizer": "Taman Zakat (promoted by HIMATIK FT-UNM)",
+    "requirements": "Not stated in the source",
+    "rewards": ["Rp6M prize pool"]
+  },
+  "72": {
+    "requirements": "University students and the public; minimum age 19; original work; teams of 3–4; free to enter",
+    "rewards": ["Rp15M prize pool", "1st Rp5M · 2nd Rp3.5M · 3rd Rp2.5M"]
+  },
+  "74": {
+    "organizer": "Medical Science Organization (UMESCO), Universitas Bengkulu",
+    "requirements": "Active D3/D4/S1 health students (medicine, dentistry, nursing, midwifery, pharmacy, public health); solo or teams of up to 3; tiered fee of Rp10,000–Rp25,000 per team",
+    "deadline": "9 December 2026; entries due 10 December 2026",
+    "rewards": ["Cash and certificates for 1st–3rd", "E-certificate for all"]
+  },
+  "87": {
+    "organizer": "VSP Vision Global Innovation Center (with The Vision Council and RX Global)",
+    "requirements": "Applicants must show the eye-care need they address, supporting evidence and feasibility, their team, business model and readiness for an accelerator; no minimum team size set",
+    "rewards": ["Accelerator and mentoring"]
+  },
+  "88": {
+    "requirements": "No team size stated; the entrant must own the film rights or have the rights holder's permission. Maximum 40 minutes; non-English films need English subtitles",
+    "deadline": "1 December 2026 (extended deadline); last call 22 December 2026",
+    "rewards": ["Audience Pick Award US$1,000", "Jury's Distinction Award US$1,000"]
+  },
+  "91": {
+    "organizer": "Association of Universities of Asia and the Pacific (AUAP) with Centro Escolar University",
+    "requirements": "Teams of 2–3 student debaters plus 1 coach; up to 4 people per team",
+    "rewards": ["Champion US$500", "1st runner-up US$300", "2nd runner-up US$200"]
+  },
+  "97": {
+    "requirements": "Teams of at least 2; at least 50% of founders must be part- or full-time students or postdocs, enrolled since Fall 2026 or earlier and graduating December 2026 or later; the startup has raised under US$100,000 in dilutive funding. Teams need not be from MIT",
+    "deadline": "early bird 11 December 2026; regular deadline 4 January 2027",
+    "rewards": ["US$100K+ non-dilutive cash", "Mentoring and resources"]
+  },
+  "100": {
+    "requirements": "The startup must be student-created and student-run, with at least 2 equity-holding founders or managers who are active students; competing team of 2–4, all active students. It must be raising funding and meet the organiser's funding and revenue limits",
+    "rewards": ["US$1M+ in investment and prizes", "Top investments US$200K, US$100K, US$50K"]
+  }
+}

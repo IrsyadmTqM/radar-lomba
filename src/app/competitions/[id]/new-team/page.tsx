@@ -2,10 +2,10 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useStore } from "@/lib/store";
+import { isPast, useStore } from "@/lib/store";
 import { freeHours } from "@/lib/matching";
 import { GOAL_OPTIONS, MAX, SKILLS, WA_GROUP_RE, type Goal } from "@/lib/types";
-import { BackButton, Field, PrimaryArrowButton, TogglePill, inputCls, teamIconSrc, FormAlert, useFormError, textareaCls } from "@/components/ui";
+import { BackButton, Field, Gone, PrimaryArrowButton, TogglePill, inputCls, teamIconSrc, FormAlert, useFormError, textareaCls } from "@/components/ui";
 import { IconCheck } from "@/components/Icons";
 
 export default function NewTeam() {
@@ -25,6 +25,7 @@ export default function NewTeam() {
   const { error, nonce, setError, clear, invalid } = useFormError();
 
   if (!c || !me) return null;
+  if (isPast(c.registration_deadline)) return <Gone title="This competition has closed" body="Registration is over, so it is no longer listed." href="/competitions" label="Back to competitions" />;
   const free = freeHours(db, me.id);
 
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
