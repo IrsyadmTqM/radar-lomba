@@ -41,7 +41,7 @@ export default function TeamPage() {
   const btn = "flex-1 min-w-[45%] h-11 rounded-[14px] bg-card text-ink no-underline flex items-center justify-center gap-2 font-semibold text-sm";
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-32 flex flex-col gap-3.5">
+    <main className="min-h-dvh px-5 pt-7 pb-32 flex flex-col gap-3.5">
       <div className="bg-lime rounded-[26px] p-[18px] flex flex-col gap-3.5">
         <div className="flex justify-between items-start gap-3">
           <div className="flex items-center gap-3 min-w-0">

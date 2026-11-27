@@ -15,7 +15,7 @@ export default function AllTeams() {
   if (!c) return <Gone title="This competition was removed" body="It is no longer listed." href="/competitions" label="Back to competitions" />;
   const teams = db.requests.filter((r) => r.competition_id === c.id && r.status === "open");
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-10 flex flex-col gap-4">
+    <main className="min-h-dvh px-5 pt-7 pb-10 flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <BackButton href={`/competitions/${c.id}`} />
         <div className="flex flex-col min-w-0">

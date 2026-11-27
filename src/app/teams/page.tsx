@@ -29,7 +29,7 @@ export default function MyTeams() {
   const pct = Math.min(100, Math.round((used / Math.max(1, me.commitment_hours_per_week)) * 100));
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-32 flex flex-col gap-4">
+    <main className="min-h-dvh px-5 pt-7 pb-32 flex flex-col gap-4">
       <h1 className="m-0 text-[28px] font-bold">My teams</h1>
 
       <label className="h-12 rounded-2xl bg-sand flex items-center gap-2.5 px-3.5 focus-within:ring-2 focus-within:ring-ink transition-shadow">

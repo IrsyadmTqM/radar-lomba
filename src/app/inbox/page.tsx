@@ -53,7 +53,7 @@ function Inbox() {
   const isEmpty = tab === "received" ? received.length === 0 && earlier.length === 0 : sent.length === 0;
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-32 flex flex-col gap-4">
+    <main className="min-h-dvh px-5 pt-7 pb-32 flex flex-col gap-4">
       <h1 className="m-0 text-[28px] font-bold">Inbox</h1>
 
       <div role="tablist" className="h-12 rounded-2xl bg-sand p-1 flex gap-1">

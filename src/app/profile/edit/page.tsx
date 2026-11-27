@@ -30,7 +30,7 @@ export default function EditProfile() {
   }
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-8 flex flex-col gap-5" onInput={clear}>
+    <main className="min-h-dvh px-5 pt-7 pb-8 flex flex-col gap-5" onInput={clear}>
       <div className="flex items-center gap-3">
         <BackButton href="/profile" />
         <h1 className="m-0 text-[22px] font-bold">Edit profile</h1>

@@ -27,7 +27,7 @@ export default function Competitions() {
   const [first, ...rest] = list;
 
   return (
-    <main className="px-5 pt-14 pb-32 flex flex-col gap-[18px]">
+    <main className="px-5 pt-7 pb-32 flex flex-col gap-[18px]">
       <div className="flex items-center justify-between">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo/radar-lomba-logo.png" alt="Radar Lomba" className="h-[34px] w-auto" />

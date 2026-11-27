@@ -52,7 +52,7 @@ export default function Candidates() {
   const expanded = (m: Match, i: number) => (openId ? openId === m.profile.id : i === 0);
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-10 flex flex-col gap-4">
+    <main className="min-h-dvh px-5 pt-7 pb-10 flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <BackButton href={`/teams/${r.id}`} />
         <div className="flex flex-col min-w-0">

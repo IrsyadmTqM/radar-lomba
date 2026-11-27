@@ -91,7 +91,7 @@ export default function Onboarding() {
   const toggleSkill = (s: string) => setSkills((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]));
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-8 flex flex-col gap-5" onInput={clear}>
+    <main className="min-h-dvh px-5 pt-7 pb-8 flex flex-col gap-5" onInput={clear}>
       <div className="flex items-center justify-between">
         <button
           type="button"

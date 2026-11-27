@@ -9,7 +9,7 @@ export default function Saved() {
   const { db, now, toggleSaved, showToast } = useStore();
   const list = db.competitions.filter((c) => db.saved.includes(c.id) && !c.hidden);
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-10 flex flex-col gap-4">
+    <main className="min-h-dvh px-5 pt-7 pb-10 flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <BackButton href="/competitions" />
         <h1 className="m-0 text-[22px] font-bold">Saved competitions</h1>

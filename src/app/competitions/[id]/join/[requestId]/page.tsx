@@ -37,7 +37,7 @@ export default function JoinRequest() {
 
   return (
     <main className="min-h-dvh bg-ink relative" onInput={clear}>
-      <div className="px-5 pt-14 h-[150px] flex flex-col gap-1 text-white opacity-50">
+      <div className="px-5 pt-7 h-[150px] flex flex-col gap-1 text-white opacity-50">
         <span className="text-xs">
           {c.category} · {c.subcategory}
         </span>

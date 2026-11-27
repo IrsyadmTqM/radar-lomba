@@ -17,7 +17,7 @@ export default function ManageCompetitions() {
   const teamCount = (id: string) => db.requests.filter((r) => r.competition_id === id).length;
 
   return (
-    <main className="min-h-dvh px-5 pt-14 pb-32 flex flex-col gap-5">
+    <main className="min-h-dvh px-5 pt-7 pb-32 flex flex-col gap-5">
       <div className="flex items-center justify-between">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo/radar-lomba-logo.png" alt="Radar Lomba" className="h-[34px] w-auto" />
