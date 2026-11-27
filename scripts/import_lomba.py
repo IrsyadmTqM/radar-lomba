@@ -7,11 +7,13 @@ Each sheet row (1-based, header excluded) gets one explicit decision below, so t
 output is reviewable and repeatable. Rows not listed in INCLUDE are skipped with a reason.
 The report is written to docs/import-lomba-report.md.
 """
-import json, re, sys, datetime
+import json, sys, datetime
 from pathlib import Path
 import openpyxl
 
 ROOT = Path(__file__).resolve().parent.parent
+# English copy per row (name/organizer overrides, requirements, deadline note, short rewards).
+EN = json.loads((ROOT / "scripts/lomba_en.json").read_text(encoding="utf-8"))
 TODAY = datetime.date(2026, 11, 27)  # sheet verified 26 Nov 2026; deadlines before today are dropped
 
 # row -> (category, subcategory, deadline ISO date, (min, max) or None = not stated -> default 1-4)
@@ -56,21 +58,6 @@ SKIP = {
     "Program belajar, bukan lomba": [14],
 }
 
-def trunc(s, n):
-    s = s.strip()
-    if len(s) <= n:
-        return s
-    return s[: n - 1].rsplit(" ", 1)[0].rstrip(",;: ") + "…"
-
-def rewards(text):
-    out = []
-    for part in re.split(r";|\. ", text):
-        part = part.strip(" .")
-        if not part or re.search(r"tidak (dicantumkan|dirinci|menyatakan|terlihat|ada)", part, re.I):
-            continue
-        out.append(trunc(part, 90))
-    return out[:3]
-
 def main(xlsx):
     wb = openpyxl.load_workbook(xlsx, data_only=True)
     rows = [r for r in wb["Lomba Aktif"].iter_rows(values_only=True)]
@@ -79,6 +66,7 @@ def main(xlsx):
     assert len(data) == 100, len(data)
 
     seen = set(INCLUDE) | {i for v in SKIP.values() for i in v}
+    assert set(INCLUDE) <= {int(k) for k in EN if k.isdigit()}, "every included row needs English copy in lomba_en.json"
     assert seen == set(range(1, 101)) and len(INCLUDE) + sum(map(len, SKIP.values())) == 100, "every row needs exactly one decision"
 
     comps, rep_in = [], []
@@ -88,17 +76,17 @@ def main(xlsx):
         assert datetime.date.fromisoformat(dl) >= TODAY, (i, dl)
         stated = size is not None
         mn, mx = size or (1, 4)
-        req = o["Syarat Tim/Peserta"].rstrip(". ")
+        en = EN[str(i)]
+        req = en["requirements"].rstrip(". ") + "."
         if not stated:
-            req += ". Ukuran tim belum disebut di sumber, jadi diisi default 1–4. Cek aturan resmi."
-        else:
-            req += "."
+            req += " Team size isn't stated in the source, so it defaults to 1–4. Check the official rules."
         if ";" in o["Deadline"] or "(" in o["Deadline"]:
-            req += f" Deadline di sumber: {o['Deadline']}."
+            assert "deadline" in en, (i, "needs an English deadline note")
+            req += f" Deadline per the source: {en['deadline']}."
         comps.append({
             "id": f"c-{i:03d}",
-            "name": o["Nama Lomba"],
-            "organizer": o["Penyelenggara"] or "Not stated",
+            "name": en.get("name", o["Nama Lomba"]),
+            "organizer": en.get("organizer", o["Penyelenggara"] or "Not stated"),
             "category": cat,
             "subcategory": sub,
             "link": o["Link Pendaftaran"],
@@ -106,7 +94,7 @@ def main(xlsx):
             "min_team_size": mn,
             "max_team_size": mx,
             "requirements": req,
-            "rewards": rewards(o["Hadiah"]),
+            "rewards": en["rewards"],
         })
         rep_in.append((i, o["Nama Lomba"], cat, dl, f"{mn}–{mx}", "dari sumber" if stated else "default"))
 

@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { daysLeft, useStore } from "@/lib/store";
+import { daysLeft, isPast, useStore } from "@/lib/store";
 import { joinBlocker, teamInCompetition } from "@/lib/matching";
 import { GOAL_LABEL } from "@/lib/types";
-import { BackButton, DemoTag, RewardTags, SectionTitle, TeamIcon } from "@/components/ui";
+import { BackButton, DemoTag, Gone, RewardTags, SectionTitle, TeamIcon } from "@/components/ui";
 import { IconBookmark, IconExternal, IconPlus } from "@/components/Icons";
 
 const PREVIEW_TEAMS = 3;
@@ -15,6 +15,7 @@ export default function CompetitionDetail() {
   const { db, me, now, toggleSaved } = useStore();
   const c = db.competitions.find((x) => x.id === id);
   if (!c || !me) return <NotFound />;
+  if (isPast(c.registration_deadline, now)) return <Gone title="This competition has closed" body="Registration is over, so it is no longer listed." href="/competitions" label="Back to competitions" />;
 
   const mine = teamInCompetition(db, me.id, c.id);
   const teams = db.requests.filter((r) => r.competition_id === c.id && r.status === "open" && r.id !== mine?.id);

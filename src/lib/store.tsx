@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { makeSeed } from "./seed";
+import { IMPORTED_COMPETITIONS } from "./competitions";
 import type { Competition, DB, Goal, Invitation, PortfolioItem, Profile, TeamRequest } from "./types";
 import { freeHours, isClosed, joinBlocker, teamInCompetition } from "./matching";
 
@@ -92,15 +93,25 @@ function dropTeamIfEmpty(db: DB, requestId: string) {
 
 /** v3 stored one free-text `contact`; v4 splits it into WhatsApp / Instagram / LinkedIn. */
 function migrate(raw: DB & { version: number }): DB | null {
-  if (raw.version === 4) return raw;
-  if (raw.version !== 3) return null;
-  const profiles = raw.profiles.map((p) => {
-    const { contact, ...rest } = p as Profile & { contact?: string };
-    const c = (contact ?? "").trim();
-    const isPhone = /^\+?[\d\s-]{8,}$/.test(c);
-    return { ...rest, whatsapp: rest.whatsapp ?? (isPhone ? c : ""), instagram: rest.instagram ?? (!isPhone && c ? c.replace(/^@/, "") : undefined) };
+  if (raw.version === 5) return raw;
+  if (raw.version !== 3 && raw.version !== 4) return null;
+  let db: DB = raw;
+  if (raw.version === 3) {
+    const profiles = raw.profiles.map((p) => {
+      const { contact, ...rest } = p as Profile & { contact?: string };
+      const c = (contact ?? "").trim();
+      const isPhone = /^\+?[\d\s-]{8,}$/.test(c);
+      return { ...rest, whatsapp: rest.whatsapp ?? (isPhone ? c : ""), instagram: rest.instagram ?? (!isPhone && c ? c.replace(/^@/, "") : undefined) };
+    });
+    db = { ...db, profiles };
+  }
+  // v5: imported competitions translated to English; swap in the new text, keep everything else.
+  const fresh = new Map(IMPORTED_COMPETITIONS.map((c) => [c.id, c]));
+  const competitions = db.competitions.map((c) => {
+    const f = fresh.get(c.id);
+    return f ? { ...c, name: f.name, organizer: f.organizer, requirements: f.requirements, rewards: f.rewards } : c;
   });
-  return { ...raw, version: 4, profiles };
+  return { ...db, version: 5, competitions };
 }
 
 function nameOf(db: DB, id: string) {
@@ -734,6 +745,11 @@ export function useStore() {
 }
 
 // ---- small selectors ----
+
+/** Registration deadline has passed: the competition disappears from the student UI. */
+export function isPast(iso: string, now = Date.now()) {
+  return new Date(iso).getTime() < now;
+}
 
 export function daysLeft(iso: string, now = Date.now()) {
   return Math.ceil((new Date(iso).getTime() - now) / 86400000);

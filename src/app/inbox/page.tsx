@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { useStore, visibleInvitations } from "@/lib/store";
+import { isPast, useStore, visibleInvitations } from "@/lib/store";
 import { freeHours } from "@/lib/matching";
 import { GOAL_LABEL, type Invitation } from "@/lib/types";
 import { BottomNav } from "@/components/BottomNav";
@@ -25,7 +25,12 @@ function Inbox() {
   const tab = params.get("tab") === "sent" ? "sent" : "received";
   if (!me) return null;
 
-  const invs = visibleInvitations(db, now);
+  // Invitations for competitions whose registration has closed are no longer shown.
+  const invs = visibleInvitations(db, now).filter((i) => {
+    const r = db.requests.find((x) => x.id === i.request_id);
+    const c = r && db.competitions.find((x) => x.id === r.competition_id);
+    return !c || !isPast(c.registration_deadline, now);
+  });
   const received = invs.filter((i) => i.to_id === me.id && i.status === "pending").sort((a, b) => b.created_at - a.created_at);
   const sent = invs.filter((i) => i.from_id === me.id && !i.dismissed_by?.includes(me.id)).sort((a, b) => b.created_at - a.created_at);
   const earlier = db.notices.filter((n) => n.to_id === me.id).sort((a, b) => b.created_at - a.created_at);
