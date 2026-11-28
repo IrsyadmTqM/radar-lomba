@@ -27,8 +27,7 @@ export default function EditTeam() {
   async function save() {
     if (title.trim().length < 3) return setError("Give your team a name.", "title");
     if (!needed.length) return setError("Pick at least one role you need.", "roles");
-    if (!groupLink.trim()) return setError("Add your team's WhatsApp group link.", "group");
-    if (!WA_GROUP_RE.test(groupLink.trim())) return setError("Paste a WhatsApp group invite link (https://chat.whatsapp.com/...).", "group");
+    if (groupLink.trim() && !WA_GROUP_RE.test(groupLink.trim())) return setError("Paste a WhatsApp group invite link (https://chat.whatsapp.com/...).", "group");
     clear();
     if (await submit.run(() => updateRequest(r!.id, { title: title.trim(), icon_id: icon, needed_roles: needed, description: desc.trim(), group_link: groupLink.trim() }))) {
       showToast("Team updated");
@@ -73,7 +72,7 @@ export default function EditTeam() {
       <Field label="What are you building?">
         <textarea value={desc} maxLength={MAX.teamDesc} onChange={(e) => setDesc(e.target.value)} className={textareaCls} />
       </Field>
-      <Field label="Team WhatsApp group link" hint="Only members see it.">
+      <Field label="Team WhatsApp group link (optional)" hint="Only members see it.">
         <input name="group" aria-invalid={invalid("group")} maxLength={MAX.link} value={groupLink} onChange={(e) => setGroupLink(e.target.value)} placeholder="https://chat.whatsapp.com/..." inputMode="url" className={inputCls} />
       </Field>
       <FormAlert message={error} nonce={nonce} />

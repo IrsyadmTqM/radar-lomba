@@ -35,8 +35,7 @@ export default function NewTeam() {
     if (!myRoles.length) return setError("Pick the role you cover.");
     if (!needed.length) return setError("Pick at least one role you need.");
     if (minHours > free) return setError(`You only have ${free} h/week free. Lower the minimum or free up time first.`);
-    if (!groupLink.trim()) return setError("Add your team's WhatsApp group link.", "group");
-    if (!WA_GROUP_RE.test(groupLink.trim())) return setError("Paste a WhatsApp group invite link (https://chat.whatsapp.com/...).", "group");
+    if (groupLink.trim() && !WA_GROUP_RE.test(groupLink.trim())) return setError("Paste a WhatsApp group invite link (https://chat.whatsapp.com/...).", "group");
     const res = createRequest({
       competition_id: c!.id,
       title: title.trim().startsWith("Team") ? title.trim() : `Team ${title.trim()}`,
@@ -61,6 +60,15 @@ export default function NewTeam() {
           <span className="text-xs text-muted">{c.name}</span>
           <h1 className="m-0 text-[22px] font-bold">Create a team</h1>
         </div>
+      </div>
+
+      <div className="bg-lime rounded-[20px] p-4 flex flex-col gap-2">
+        <span className="text-sm font-bold">How this works</span>
+        <ol className="m-0 pl-5 text-[13px] leading-snug flex flex-col gap-1">
+          <li>Name your team and pick the roles you still need.</li>
+          <li>Set the minimum hours and your goal. We use these to find people who fit.</li>
+          <li>Next you see matching students, each with reasons. Invite the ones you like.</li>
+        </ol>
       </div>
 
       <Field label="Team name">
@@ -104,6 +112,7 @@ export default function NewTeam() {
         <span className="text-[13px] font-semibold">
           Roles you need <span className="font-medium text-muted">(one person can cover several)</span>
         </span>
+        <span className="text-xs text-muted -mt-1">Tap every role your team is still missing. We match people who cover them.</span>
         <div className="flex flex-wrap gap-2">
           {SKILLS.filter((s) => !myRoles.includes(s)).map((s) => (
             <TogglePill key={s} on={needed.includes(s)} onClick={() => toggle(needed, setNeeded, s)}>
@@ -124,6 +133,7 @@ export default function NewTeam() {
 
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-semibold">Team goal</span>
+        <span className="text-xs text-muted -mt-1">We match people who want the same thing, so nobody is surprised later.</span>
         <div className="grid grid-cols-3 gap-2">
           {GOAL_OPTIONS.map((g) => (
             <button key={g.value} type="button" aria-pressed={goal === g.value} onClick={() => setGoal(g.value)} className={`rounded-2xl px-2 py-3 text-[13px] font-semibold leading-tight ${goal === g.value ? "bg-ink text-lime" : "bg-card"}`}>
@@ -137,7 +147,7 @@ export default function NewTeam() {
         <textarea value={desc} maxLength={MAX.teamDesc} onChange={(e) => setDesc(e.target.value)} placeholder="One or two lines about your idea." className={textareaCls} />
       </Field>
 
-      <Field label="Team WhatsApp group link" hint="Required. Only members see it. You can change it later.">
+      <Field label="Team WhatsApp group link (optional)" hint="You can skip this and add it after your team forms. Only members see it.">
         <input name="group" aria-invalid={invalid("group")} value={groupLink} maxLength={MAX.link} onChange={(e) => setGroupLink(e.target.value)} placeholder="https://chat.whatsapp.com/..." inputMode="url" className={inputCls} />
       </Field>
 

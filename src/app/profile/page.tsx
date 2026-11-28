@@ -42,7 +42,7 @@ export default function Profile() {
           <Avatar id={me.avatar_id} size={72} radius={22} alt="Your avatar" />
         </Link>
         <div className="flex-1 flex flex-col gap-0.5 min-w-0">
-          <span className="text-lg font-bold">{me.full_name}</span>
+          <span className="text-[22px] font-bold leading-tight">{me.full_name}</span>
           <span className="text-[13px] text-muted">
             {me.major} · {me.entry_year}
           </span>

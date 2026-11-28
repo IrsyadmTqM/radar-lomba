@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { BottomNav } from "@/components/BottomNav";
 import { joinBlocker } from "@/lib/matching";
+import type { InvitationStatus } from "@/lib/types";
 import { Avatar, BackButton, ConfirmModal, DemoTag, Gone, SectionTitle, TeamIcon } from "@/components/ui";
 import { IconBack, IconChat, IconExternal, IconPlus, IconSearch } from "@/components/Icons";
 
@@ -38,6 +39,8 @@ export default function TeamPage() {
 
   const blocker = isMember ? null : joinBlocker(db, r, me.id);
   const requested = db.invitations.some((i) => i.request_id === r.id && i.from_id === me.id && i.status === "pending");
+  // Owner sees every invite or join request for this team and where it stands.
+  const sentInvites = isOwner ? db.invitations.filter((i) => i.request_id === r.id).sort((a, b) => b.created_at - a.created_at) : [];
   const btn = "flex-1 min-w-[45%] h-11 rounded-[14px] bg-card text-ink no-underline flex items-center justify-center gap-2 font-semibold text-sm";
 
   return (
@@ -112,8 +115,9 @@ export default function TeamPage() {
                 <Link href={p.id === me.id ? "/profile" : `/users/${p.id}?team=${r.id}`} className="group flex items-center gap-3 no-underline text-ink rounded-xl -mx-1.5 px-1.5 py-1 hover:bg-paper">
                   <Avatar id={p.avatar_id} size={40} radius={13} alt={p.full_name} />
                   <div className="flex-1 flex flex-col gap-px min-w-0">
-                    <span className="font-semibold text-sm">
-                      {p.id === me.id ? "You" : p.full_name}
+                    <span className="font-bold text-[15px]">
+                      {p.full_name}
+                      {p.id === me.id && " (you)"}
                       {p.id === r.owner_id && " · Owner"} {p.is_demo && <DemoTag />}
                     </span>
                     <span className="text-xs text-muted">
@@ -147,6 +151,35 @@ export default function TeamPage() {
           </div>
         )}
       </div>
+
+      {isOwner && sentInvites.length > 0 && (
+        <>
+          <SectionTitle title="Invites and requests" />
+          <div className="bg-card rounded-[22px] px-3.5 py-1.5 flex flex-col">
+            {sentInvites.map((inv, i) => {
+              const other = db.profiles.find((x) => x.id === (inv.type === "invite" ? inv.to_id : inv.from_id));
+              if (!other) return null;
+              return (
+                <div key={inv.id} className={`flex items-center gap-3 py-2.5 ${i < sentInvites.length - 1 ? "border-b border-sand" : ""}`}>
+                  <Avatar id={other.avatar_id} size={36} radius={12} alt={other.full_name} />
+                  <div className="flex-1 flex flex-col gap-px min-w-0">
+                    <span className="font-semibold text-sm truncate">{other.full_name}</span>
+                    <span className="text-xs text-muted">
+                      {inv.type === "invite" ? "You invited" : "Asked to join"} · {inv.roles.join(", ")}
+                    </span>
+                  </div>
+                  <InviteStatus status={inv.status} />
+                </div>
+              );
+            })}
+          </div>
+          {sentInvites.some((i) => i.status === "pending" && i.type === "join") && (
+            <Link href="/inbox" className="self-start text-xs underline text-ink">
+              Answer join requests in your Inbox
+            </Link>
+          )}
+        </>
+      )}
 
       {isOwner && r.status === "open" && (
         <Link href={`/teams/${r.id}/candidates`} className="h-12 rounded-2xl bg-lime text-ink no-underline flex items-center justify-center gap-2 font-semibold text-sm">
@@ -234,4 +267,10 @@ export default function TeamPage() {
       <BottomNav />
     </main>
   );
+}
+
+function InviteStatus({ status }: { status: InvitationStatus }) {
+  if (status === "pending") return <span className="text-[11px] bg-sand rounded-md px-2 py-1 shrink-0">Waiting for reply</span>;
+  if (status === "accepted") return <span className="text-[11px] bg-lime rounded-md px-2 py-1 shrink-0 font-semibold">Accepted</span>;
+  return <span className="text-[11px] bg-paper text-muted rounded-md px-2 py-1 shrink-0">Declined</span>;
 }

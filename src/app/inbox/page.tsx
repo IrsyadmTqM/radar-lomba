@@ -215,7 +215,7 @@ function StatusPill({ status }: { status: Invitation["status"] }) {
   if (status === "pending")
     return (
       <span className="text-[11px] bg-sand rounded-md px-1.5 py-1 flex items-center gap-1">
-        <IconClock size={12} /> Waiting
+        <IconClock size={12} /> Waiting for reply
       </span>
     );
   if (status === "accepted") return <span className="text-[11px] bg-lime rounded-md px-1.5 py-1">Accepted</span>;
