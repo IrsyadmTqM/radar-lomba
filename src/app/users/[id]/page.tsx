@@ -31,7 +31,7 @@ function Body() {
       <div className="bg-card rounded-[24px] p-4 flex items-center gap-4">
         <Avatar id={p.avatar_id} size={72} radius={22} alt={p.full_name} />
         <div className="flex-1 flex flex-col gap-0.5 min-w-0">
-          <span className="text-lg font-bold">
+          <span className="text-[22px] font-bold leading-tight">
             {p.full_name} {p.is_demo && <DemoTag />}
           </span>
           <span className="text-[13px] text-muted">
